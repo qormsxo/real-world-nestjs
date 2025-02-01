@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-
+import * as path from 'path';
 export const databaseProviders = [
   {
     provide: 'DATA_SOURCE',
@@ -8,16 +8,17 @@ export const databaseProviders = [
         type: 'mysql',
         host: 'localhost',
         port: 3306,
-        username: 'root',
-        password: 'root',
-        database: 'test',
+        username: process.env.DBUSER,
+        password: process.env.DBPW,
+        database: 'realworld',
         entities: [
-            __dirname + '/../**/*.entity{.ts,.js}',
+          path.resolve(__dirname, '..', 'modules', '**', '*.entity{.ts,.js}'),
         ],
-        synchronize: true,
+        synchronize: false,
       });
-
+    
       return dataSource.initialize();
     },
   },
 ];
+
