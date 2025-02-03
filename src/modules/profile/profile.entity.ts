@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { User } from '../user/user.entity';
 
 @Entity()
@@ -15,6 +15,7 @@ export class Profile {
   @Column({ nullable: true })
   image: string;
 
-  @ManyToOne(() => User, (user) => user.profiles)
+  @OneToOne(() => User, (user) => user.profile) 
+  @JoinColumn() // 🔥 여기 추가! Profile 테이블이 User의 외래 키(FK)를 가짐
   user: User;
 }

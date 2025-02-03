@@ -22,6 +22,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
         password: process.env.DBPW,
         database: 'realworld',
         synchronize: false,
+        dropSchema: false,
         entities: [
            __dirname + "/modules/**/*.entity{.ts,.js}"
         ],

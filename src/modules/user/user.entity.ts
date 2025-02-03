@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
 import { Article } from '../article/article.entity';
 import { Comment } from '../comment/comment.entity';
 import { Profile } from '../profile/profile.entity';
@@ -19,7 +19,7 @@ export class User {
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
-
-  @OneToMany(() => Profile, (profile) => profile.user)
-  profiles: Profile[];
+  
+  @OneToOne(() => Profile, (profile) => profile.user)
+  profile: Profile;
 }
