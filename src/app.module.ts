@@ -8,6 +8,7 @@ import { typeOrmConfig } from './database/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { WinstonLogger } from './config/logging/logger';
 
 
 @Module({
@@ -32,7 +33,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
     UserModule, 
   ],
   controllers: [AppController],
-  providers: [AppService,],
+  providers: [AppService,WinstonLogger],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {
