@@ -1,5 +1,4 @@
-import { LoggerService } from '@nestjs/common';
-import { createLogger, transports, format } from 'winston';
+import { transports, format } from 'winston';
 import { LoggerOptions } from 'winston';
 
 export const winstonOptions: LoggerOptions = {

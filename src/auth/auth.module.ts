@@ -13,7 +13,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_SECRET');
-        console.log(`JWT_SECRET: ${secret}`, 'AuthModule'); // 환경 변수 출력
         return {
           secret,
           signOptions: { expiresIn: '1h' },

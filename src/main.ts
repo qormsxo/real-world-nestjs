@@ -15,8 +15,6 @@ async function bootstrap() {
 
   // 글로벌 인터셉터 등록
   app.useGlobalInterceptors(new LoggingInterceptor(app.get(WinstonLogger)));
-  // 기본 로깅을 비활성화(선택 사항)
-  app.useLogger(new WinstonLogger());
   
   await app.listen(process.env.PORT ?? 3000);
 
