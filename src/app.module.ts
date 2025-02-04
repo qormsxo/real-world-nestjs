@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from './modules/user/user.module';
-import { typeOrmConfig } from './database/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { WinstonLogger } from './config/logging/logger';
+import { AuthModule } from './auth/auth.module';
+
 
 
 @Module({
@@ -31,6 +31,7 @@ import { WinstonLogger } from './config/logging/logger';
       inject: [],
     }),
     UserModule, 
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService,WinstonLogger],

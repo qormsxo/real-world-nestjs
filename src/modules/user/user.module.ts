@@ -5,6 +5,8 @@ import { Profile } from '../profile/profile.entity';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { JwtModule } from '@nestjs/jwt';
+import * as dotenv from 'dotenv';
+dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 @Module({
   imports: [

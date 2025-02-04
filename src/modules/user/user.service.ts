@@ -81,4 +81,17 @@ export class UserService {
             token
         );
     }
+    async findById(id:number): Promise<UserWithTokenDto>{
+        const user = await this.userRepository.findOneOrFail({
+            where: { id: id },
+            relations: ['profile'], // 'profile'을 함께 가져오기
+          });
+    
+        return UserWithTokenDto.builder()
+        .setEmail(user.email)
+        .setUsername(user.profile.username)
+        .setBio(user.profile.bio)
+        .setImage(user.profile.image)
+        .build();
+    }
 }
