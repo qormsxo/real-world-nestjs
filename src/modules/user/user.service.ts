@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserResponseDto, UserWithTokenDto } from './dto/res/user.response.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UserLoginPayload } from './dto/req/user.login.dto';
+import { UpdateUserDto } from './dto/req/user.update.dto';
 
 @Injectable()
 export class UserService {
@@ -25,9 +26,7 @@ export class UserService {
     @Transactional()
     async signUp(userDto: UserDto) : Promise<UserWithTokenDto> {
 
-        const salt = await bcrypt.genSalt(10); 
-
-        const hashedPassword = await bcrypt.hash(userDto.password, salt);
+        const hashedPassword = await this.hashPassword(userDto.password)
 
         const user = this.userRepository.create({
             email: userDto.email,
@@ -69,6 +68,7 @@ export class UserService {
         if (!isPasswordValid) {
             throw new UnauthorizedException('비밀번호가 올바르지 않습니다.');
         }
+        
 
         const payload = { id: user.id, email: user.email };
         const token = this.jwtService.sign(payload);
@@ -86,12 +86,40 @@ export class UserService {
             where: { id: id },
             relations: ['profile'], // 'profile'을 함께 가져오기
           });
-    
+
         return UserWithTokenDto.builder()
         .setEmail(user.email)
         .setUsername(user.profile.username)
         .setBio(user.profile.bio)
         .setImage(user.profile.image)
         .build();
+    }
+    async updateUser(id:number, dto: UpdateUserDto ): Promise<UserWithTokenDto>{
+
+        if (dto.user.password) dto.user.password = await this.hashPassword(dto.user.password)
+
+        const user = await this.userRepository.findOneOrFail({
+            where: { id: id },
+            relations: ['profile'], // 'profile'을 함께 가져오기
+        });
+
+        user.update(dto.user);
+         // 엔티티를 저장 (업데이트)
+        await this.userRepository.save(user);
+        await this.profileRepository.save(user.profile)
+
+        return UserWithTokenDto.builder()
+        .setEmail(user.email)
+        .setUsername(user.profile.username)
+        .setBio(user.profile.bio)
+        .setImage(user.profile.image)
+        .build();
+    }
+
+    async hashPassword(password:string): Promise<string>{
+        const salt = await bcrypt.genSalt(10); 
+
+        const hashedPassword = await bcrypt.hash(password, salt);
+        return hashedPassword
     }
 }
