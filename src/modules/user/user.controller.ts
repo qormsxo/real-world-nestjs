@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Req, Request, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Put, Req, Request, UseGuards } from '@nestjs/common';
 import { UserResponseDto } from './dto/res/user.response.dto';
 import { UserService } from './user.service';
 import { UserDto } from './dto/req/user.create.dto';
@@ -50,5 +50,11 @@ export class UserController {
     return new UserResponseDto(
       user
     )
+  }
+
+  @Get("/test")
+  errorTest(){
+    throw new BadRequestException("한글")
+    // this.userService.testError()
   }
 }

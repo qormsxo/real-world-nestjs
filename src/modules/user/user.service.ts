@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -122,4 +122,8 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(password, salt);
         return hashedPassword
     }
+    
+    // testError(){
+    //     throw new InternalServerErrorException()
+    // }
 }

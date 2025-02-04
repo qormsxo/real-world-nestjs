@@ -1,5 +1,5 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor } from '@nestjs/common';
+import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { WinstonLogger } from 'src/config/logging/logger';
 
 @Injectable()
@@ -19,10 +19,7 @@ export class LoggingInterceptor implements NestInterceptor {
         // 응답 로깅
         this.logger.log(`📤 ${method} ${url} - ${Date.now() - now}ms`);
       }),
-      catchError((err)=>{
-        this.logger.error(`Error during ${method} ${url}: ${err.message}`, err.stack);
-        return throwError(() => err);
-      })
+      
     );
   }
 }

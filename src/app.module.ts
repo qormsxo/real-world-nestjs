@@ -8,11 +8,13 @@ import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { WinstonLogger } from './config/logging/logger';
 import { AuthModule } from './auth/auth.module';
+import { AllExceptionsFilter } from './middleware/flters/all-exception.filter';
 
 
 
 @Module({
   imports: [
+
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
@@ -34,7 +36,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService,WinstonLogger],
+  providers: [AllExceptionsFilter,AppService,WinstonLogger],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {
