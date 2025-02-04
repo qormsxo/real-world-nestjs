@@ -24,7 +24,7 @@ import { AllExceptionsFilter } from './middleware/flters/all-exception.filter';
         username: process.env.DBUSER,
         password: process.env.DBPW,
         database: 'realworld',
-        synchronize: false,
+        synchronize: true,
         dropSchema: false,
         entities: [
            __dirname + "/modules/**/*.entity{.ts,.js}"

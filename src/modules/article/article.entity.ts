@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'ty
 import { User } from '../user/user.entity';
 import { Tag } from '../tag/tag.entity';
 import { Comment } from '../comment/comment.entity';
+import { Favorite } from '../favorite/favorite.entity';
 
 @Entity()
 export class Article {
@@ -28,4 +29,8 @@ export class Article {
 
   @OneToMany(() => Tag, (tag) => tag.article)
   tags: Tag[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.article)
+  favorites: Favorite[];
+
 }

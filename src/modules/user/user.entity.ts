@@ -3,6 +3,8 @@ import { Article } from '../article/article.entity';
 import { Comment } from '../comment/comment.entity';
 import { Profile } from '../profile/profile.entity';
 import { UpdateUserDto, UpdateUserPayload } from './dto/req/user.update.dto';
+import { Follow } from '../follow/follow.entity';
+import { Favorite } from '../favorite/favorite.entity';
 
 @Entity()
 export class User {
@@ -23,7 +25,14 @@ export class User {
   
   @OneToOne(() => Profile, (profile) => profile.user)
   profile: Profile;
-  
+
+  @OneToMany(() => Follow, (follow) => follow.follower)
+  following: Follow[]; // 내가 팔로우하는 목록
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
+
+    
   update(dto: UpdateUserPayload) {
     if (dto.email) this.email = dto.email; // 이메일이 있으면 변경
     if (dto.password) this.password = dto.password; // 비밀번호가 있으면 변경

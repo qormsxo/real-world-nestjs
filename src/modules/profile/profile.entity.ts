@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from '../user/user.entity';
+import { Follow } from '../follow/follow.entity';
 
 @Entity()
 export class Profile {
@@ -18,4 +19,7 @@ export class Profile {
   @OneToOne(() => User, (user) => user.profile) 
   @JoinColumn() // 🔥 여기 추가! Profile 테이블이 User의 외래 키(FK)를 가짐
   user: User;
+
+  @OneToMany(() => Follow, (follow) => follow.following)
+  followers: Follow[]; // 나를 팔로우하는 목록
 }
