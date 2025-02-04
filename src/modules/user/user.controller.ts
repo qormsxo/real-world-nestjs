@@ -51,10 +51,4 @@ export class UserController {
       user
     )
   }
-
-  @Get("/test")
-  errorTest(){
-    throw new BadRequestException("한글")
-    // this.userService.testError()
-  }
 }

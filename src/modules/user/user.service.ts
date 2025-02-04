@@ -122,8 +122,4 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(password, salt);
         return hashedPassword
     }
-    
-    // testError(){
-    //     throw new InternalServerErrorException()
-    // }
 }
