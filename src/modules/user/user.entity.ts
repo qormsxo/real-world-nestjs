@@ -27,7 +27,6 @@ export class User {
   update(dto: UpdateUserPayload) {
     if (dto.email) this.email = dto.email; // 이메일이 있으면 변경
     if (dto.password) this.password = dto.password; // 비밀번호가 있으면 변경
-    console.log(dto);
     
     // profile 관련 필드 업데이트
     if (dto.username) this.profile.username = dto.username; // 프로필 이름이 있으면 변경
