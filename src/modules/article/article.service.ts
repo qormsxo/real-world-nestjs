@@ -7,7 +7,7 @@ import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/req/article.create.dto';
 import { Tag } from '../tag/tag.entity';
 import { User } from '../user/user.entity';
-import { ArticleDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
+import { ArticleDto, ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
 
 @Injectable()
 export class ArticleService {
@@ -73,6 +73,14 @@ export class ArticleService {
             .replace(/[^\w\-]+/g, '')
             .replace(/--+/g, '-')
             .replace(/^-+|-+$/g, '');
+    }
+
+    async getAllArticles(): Promise<ArticleListDto[]>{
+        let articles : Article[] = await this.articleRepository.find({
+            select: ['slug', 'title', 'description', 'createdAt', 'updatedAt'], // 'body' 제외
+            relations: ['author', 'author.profile','tags'],
+        });
+        return articles.map((article)=> ArticleListDto.toDto(article))
     }
     
 

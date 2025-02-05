@@ -25,7 +25,7 @@ import { ArticleModule } from './modules/article/article.module';
         username: process.env.DBUSER,
         password: process.env.DBPW,
         database: 'realworld',
-        synchronize: true,
+        synchronize: false,
         dropSchema: false,
         entities: [
            __dirname + "/modules/**/*.entity{.ts,.js}"

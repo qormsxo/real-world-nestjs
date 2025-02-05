@@ -45,7 +45,38 @@ export class ArticleDto {
     }
     
 }
+
   
 export class CreateArticleResponseDto {
     article: ArticleDto;
+}
+
+export class ArticleListDto {
+    slug: string;
+    title: string;
+    description: string;
+    tagList: string[];
+    createdAt: string;
+    updatedAt: string;
+    favorited: boolean;
+    favoritesCount: number;
+    author: AuthorDto;
+
+    static toDto(article: Article): ArticleListDto {
+        return {
+            slug: article.slug,
+            title: article.title,
+            description: article.description,
+            tagList: article.tags.map(tag => tag.name),
+            createdAt: article.createdAt.toISOString(),
+            updatedAt: article.updatedAt.toISOString(),
+            favorited: false,
+            favoritesCount: 0,
+            author: AuthorDto.toDto(article.author.profile),
+        };
+    }
+}
+export class ArticlesDto {
+    articles: ArticleListDto[];
+    articlesCount: number;
 }
