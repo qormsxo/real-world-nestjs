@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Tag } from '../tag/tag.entity';
 import { Comment } from '../comment/comment.entity';
@@ -21,8 +21,9 @@ export class Article {
   @Column()
   body: string;
 
-  @Column("simple-array", { nullable: true })
-  tagList: string[]; // 🔹 태그를 배열로 저장
+  @ManyToMany(() => Tag, (tag) => tag.articles, { cascade: true })
+  @JoinTable() // 🔹 중간 테이블 자동 생성 (article_tags)
+  tags: Tag[];
 
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   author: User;
