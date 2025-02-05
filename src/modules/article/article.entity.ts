@@ -22,7 +22,7 @@ export class Article {
   body: string;
 
   @ManyToMany(() => Tag, (tag) => tag.articles, { cascade: true })
-  @JoinTable() // 🔹 중간 테이블 자동 생성 (article_tags)
+  @JoinTable({ name: 'article_tags' }) 
   tags: Tag[];
 
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
