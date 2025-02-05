@@ -9,6 +9,6 @@ export class Tag {
   @Column()
   name: string;
 
-  @ManyToOne(() => Article, (article) => article.tags)
+  @ManyToOne(() => Article, (article) => article.tagList)
   article: Article;
 }
