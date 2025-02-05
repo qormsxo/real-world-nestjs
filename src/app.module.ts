@@ -9,6 +9,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
 import { WinstonLogger } from './config/logging/logger';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './middleware/flters/all-exception.filter';
+import { ArticleModule } from './modules/article/article.module';
 
 
 
@@ -33,7 +34,8 @@ import { AllExceptionsFilter } from './middleware/flters/all-exception.filter';
       inject: [],
     }),
     UserModule, 
-    AuthModule
+    AuthModule,
+    ArticleModule
   ],
   controllers: [AppController],
   providers: [AllExceptionsFilter,AppService,WinstonLogger],
