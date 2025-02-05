@@ -1,8 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Put, Req, Request, UseGuards } from '@nestjs/common';
 import { UserResponseDto } from './dto/res/user.response.dto';
 import { UserService } from './user.service';
-import { UserDto } from './dto/req/user.create.dto';
-import { CreateUserDto } from './dto/req/user.create.dto';
+import { CreateUserRequestDto, CreateUserDto } from './dto/req/user.create.dto';
 import { UserLoginDto } from './dto/req/user.login.dto';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { UpdateUserDto } from './dto/req/user.update.dto';
@@ -15,8 +14,8 @@ export class UserController {
 ) {}
 
   @Post('/users')
-  async signUp(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    const { user } = createUserDto;
+  async signUp(@Body() createUserReqDto: CreateUserRequestDto): Promise<UserResponseDto> {
+    const { user } = createUserReqDto;
     return new UserResponseDto(
         await this.userService.signUp(user)
     );  

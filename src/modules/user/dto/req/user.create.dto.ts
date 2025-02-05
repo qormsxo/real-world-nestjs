@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, MinLength, Matches, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class UserDto {
+export class CreateUserDto {
   @IsEmail({}, { message: '올바른 이메일 형식이어야 합니다.' })
   @IsNotEmpty({ message: '이메일은 필수 항목입니다.' })
   email: string;
@@ -17,9 +17,9 @@ export class UserDto {
   username: string;
 }
 
-export class CreateUserDto {
+export class CreateUserRequestDto {
   @IsNotEmpty({ message: '유저 객체는 필수 항목입니다.' })
   @ValidateNested() // 중첩 객체 유효성 검사 활성화
-  @Type(() => UserDto) // plain object → UserDto 변환
-  user: UserDto;
+  @Type(() => CreateUserDto) // plain object → UserDto 변환
+  user: CreateUserDto;
 }

@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UserDto } from '../dto/req/user.create.dto';
+import { CreateUserDto } from '../dto/req/user.create.dto';
 import { UserLoginPayload } from '../dto/req/user.login.dto';
 import { UpdateUserDto } from '../dto/req/user.update.dto';
 
@@ -54,7 +54,7 @@ describe('UserService', () => {
     describe('signUp', () => {
       it('should successfully create a user and return a token', async () => {
         // 사용자 가입 테스트
-        const userDto: UserDto = {
+        const userDto: CreateUserDto = {
           email: 'test@example.com',
           password: 'password',
           username: 'testuser',

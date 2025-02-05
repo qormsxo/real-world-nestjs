@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, UnauthorizedException } from 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { UserDto } from './dto/req/user.create.dto';
+import { CreateUserDto } from './dto/req/user.create.dto';
 import * as bcrypt from 'bcrypt';
 import { Profile } from '../profile/profile.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -24,7 +24,7 @@ export class UserService {
     ){}
 
     @Transactional()
-    async signUp(userDto: UserDto) : Promise<UserWithTokenDto> {
+    async signUp(userDto: CreateUserDto) : Promise<UserWithTokenDto> {
 
         const hashedPassword = await this.hashPassword(userDto.password)
 
