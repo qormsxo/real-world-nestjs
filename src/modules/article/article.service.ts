@@ -8,6 +8,7 @@ import { CreateArticleDto } from './dto/req/article.create.dto';
 import { Tag } from '../tag/tag.entity';
 import { User } from '../user/user.entity';
 import { ArticleDto, ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
+import { ArticleQueryDto } from './dto/req/article.query.dto';
 
 @Injectable()
 export class ArticleService {
@@ -75,12 +76,43 @@ export class ArticleService {
             .replace(/^-+|-+$/g, '');
     }
 
-    async getAllArticles(): Promise<ArticleListDto[]>{
-        let articles : Article[] = await this.articleRepository.find({
-            select: ['slug', 'title', 'description', 'createdAt', 'updatedAt'], // 'body' 제외
-            relations: ['author', 'author.profile','tags'],
-        });
-        return articles.map((article)=> ArticleListDto.toDto(article))
+    async getAllArticles(query: ArticleQueryDto,id?:number): Promise<ArticleListDto[]>{
+        
+        const { tag, author, favorited, limit, offset } = query;
+        // 기본 쿼리로 필터링 없이 데이터를 먼저 가져옴
+        let queryBuilder = this.articleRepository.createQueryBuilder('article')
+        .leftJoinAndSelect('article.author', 'author')
+        .leftJoinAndSelect('author.profile', 'profile') // profile과 연결
+        .leftJoinAndSelect('article.tags', 'tags');
+
+        // 필터링 조건을 순차적으로 추가
+        if (tag) {
+            queryBuilder.andWhere('tags.name = :tag', { tag });
+        }
+
+        if (author) {
+            queryBuilder.andWhere('profile.username = :author', { author });
+        }
+
+        if (favorited) {
+            queryBuilder
+            .leftJoin('article.favorites', 'favorite')
+            .leftJoin('favorite.user', 'favoriteUser') // user를 'favoriteUser'로 조인
+            .leftJoin('favoriteUser.profile', 'favoriteProfile') // favoriteUser.profile을 'favoriteProfile'로 조인
+            .andWhere('favoriteProfile.username = :favorited', { favorited });
+        }
+
+        // 필터링된 데이터를 기준으로 limit, offset을 적용
+        queryBuilder
+        .skip(offset)
+        .take(limit)
+        .orderBy('article.createdAt', 'DESC');
+
+        // 결과 쿼리 실행
+        const articles = await queryBuilder.getMany();
+
+        
+        return articles.map((article)=> ArticleListDto.toDto(article, id))
     }
     
 

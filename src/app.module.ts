@@ -27,6 +27,7 @@ import { ArticleModule } from './modules/article/article.module';
         database: 'realworld',
         synchronize: false,
         dropSchema: false,
+        logging: true, // true로 설정하면 SQL 쿼리, 오류 등을 콘솔에 출력
         entities: [
            __dirname + "/modules/**/*.entity{.ts,.js}"
         ],

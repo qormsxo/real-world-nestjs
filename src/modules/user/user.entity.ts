@@ -23,7 +23,7 @@ export class User {
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
   
-  @OneToOne(() => Profile, (profile) => profile.user)
+  @OneToOne(() => Profile, (profile) => profile.user , { eager: true })
   profile: Profile;
 
   @OneToMany(() => Follow, (follow) => follow.follower)

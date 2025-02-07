@@ -31,7 +31,7 @@ export class Article {
   @OneToMany(() => Comment, (comment) => comment.article)
   comments: Comment[];
 
-  @OneToMany(() => Favorite, (favorite) => favorite.article)
+  @OneToMany(() => Favorite, (favorite) => favorite.article,{ eager: true })
   favorites: Favorite[];
 
   @CreateDateColumn()

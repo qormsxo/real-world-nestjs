@@ -38,7 +38,7 @@ export class ArticleDto {
             tagList: article.tags.map(tag => tag.name),
             createdAt: article.createdAt.toISOString(), 
             updatedAt: article.updatedAt.toISOString(), 
-            favorited: false, // 예시로 false로 설정, 실제 값은 필요시 처리
+            favorited: false,
             favoritesCount: 0,
             author:AuthorDto.toDto(article.author.profile)
         }
@@ -62,7 +62,17 @@ export class ArticleListDto {
     favoritesCount: number;
     author: AuthorDto;
 
-    static toDto(article: Article): ArticleListDto {
+    static toDto(article: Article, id?:number): ArticleListDto {
+        
+    const favoritesCount = (article.favorites || []).length;  // favorites가 undefined일 경우 빈 배열로 처리
+        
+        let favorited = false;
+
+        if (id && article.favorites) {
+            // user가 있다면, 이 사용자가 이 글을 좋아요 했는지 확인
+            favorited = article.favorites.some(favorite => favorite.user.id === id);
+        }
+
         return {
             slug: article.slug,
             title: article.title,
@@ -71,7 +81,7 @@ export class ArticleListDto {
             createdAt: article.createdAt.toISOString(),
             updatedAt: article.updatedAt.toISOString(),
             favorited: false,
-            favoritesCount: 0,
+            favoritesCount: favoritesCount,
             author: AuthorDto.toDto(article.author.profile),
         };
     }
