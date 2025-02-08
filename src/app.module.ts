@@ -10,6 +10,7 @@ import { WinstonLogger } from './config/logging/logger';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './middleware/flters/all-exception.filter';
 import { ArticleModule } from './modules/article/article.module';
+import { FollowModule } from './modules/follow/follow.module';
 
 
 
@@ -36,7 +37,8 @@ import { ArticleModule } from './modules/article/article.module';
     }),
     UserModule, 
     AuthModule,
-    ArticleModule
+    ArticleModule,
+    FollowModule,
   ],
   controllers: [AppController],
   providers: [AllExceptionsFilter,AppService,WinstonLogger],

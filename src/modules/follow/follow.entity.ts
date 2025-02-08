@@ -7,7 +7,7 @@ export class Follow {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.following)
+  @ManyToOne(() => User, (user) => user.following, { eager: true })
   follower: User; // 팔로우하는 사용자
 
   @ManyToOne(() => Profile, (profile) => profile.followers)

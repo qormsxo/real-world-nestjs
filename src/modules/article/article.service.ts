@@ -89,7 +89,7 @@ export class ArticleService {
         // 기본 쿼리로 필터링 없이 데이터를 먼저 가져옴
         let queryBuilder = this.articleRepository.createQueryBuilder('article')
             .leftJoinAndSelect('article.author', 'author')
-            .leftJoinAndSelect('author.profile', 'profile') // profile과 연결
+            .leftJoinAndSelect('author.profile', 'profile')
             .leftJoinAndSelect('article.tags', 'tags');
 
         // 필터링 조건을 순차적으로 추가
@@ -104,8 +104,8 @@ export class ArticleService {
         if (favorited) {
             queryBuilder
                 .leftJoin('article.favorites', 'favorite')
-                .leftJoin('favorite.user', 'favoriteUser') // user를 'favoriteUser'로 조인
-                .leftJoin('favoriteUser.profile', 'favoriteProfile') // favoriteUser.profile을 'favoriteProfile'로 조인
+                .leftJoin('favorite.user', 'favoriteUser')
+                .leftJoin('favoriteUser.profile', 'favoriteProfile')
                 .andWhere('favoriteProfile.username = :favorited', { favorited });
         }
 
