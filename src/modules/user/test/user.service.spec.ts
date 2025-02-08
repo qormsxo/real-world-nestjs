@@ -51,8 +51,8 @@ describe('UserService', () => {
       expect(userService).toBeDefined();
     });
 
-    describe('signUp', () => {
-      it('should successfully create a user and return a token', async () => {
+    describe('회원 가입', () => {
+      it('사용자가 생성되고 토큰을 반환해야 함', async () => {
         // 사용자 가입 테스트
         const userDto: CreateUserDto = {
           email: 'test@example.com',
@@ -82,8 +82,8 @@ describe('UserService', () => {
       });
     });
 
-    describe('signIn', () => {
-      it('should throw UnauthorizedException if user not found', async () => {
+    describe('로그인', () => {
+      it('사용자를 찾을 수 없으면 UnauthorizedException 예외 발생해야함함', async () => {
         // 로그인 시 사용자를 찾을 수 없을 때 UnauthorizedException 발생 테스트
         const userLoginPayload: UserLoginPayload = {
           email: 'test@example.com',
@@ -99,7 +99,7 @@ describe('UserService', () => {
         }
       });
 
-      it('should return a user with token on successful login', async () => {
+      it('로그인 성공 시 사용자 정보와 토큰을 반환해야 함', async () => {
         // 로그인 시 정상적으로 사용자 정보를 반환하고 토큰을 생성하는지 테스트
         const userLoginPayload: UserLoginPayload = {
           email: 'test@example.com',
@@ -121,8 +121,8 @@ describe('UserService', () => {
       });
     });
 
-    describe('updateUser', () => {
-      it('should update the user information and return updated user with token', async () => {
+    describe('사용자 정보 업데이트', () => {
+      it('사용자 정보를 업데이트하고 업데이트된 사용자 정보와 토큰을 반환해야 함', async () => {
         // 사용자 정보 업데이트 및 변경된 정보 반환 테스트
         const updateUserDto: UpdateUserDto = {
           user: {
