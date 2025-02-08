@@ -3,7 +3,7 @@ import { UserResponseDto } from './dto/res/user.response.dto';
 import { UserService } from './user.service';
 import { CreateUserRequestDto, CreateUserDto } from './dto/req/user.create.dto';
 import { UserLoginDto } from './dto/req/user.login.dto';
-import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 import { UpdateUserDto } from './dto/req/user.update.dto';
 
 

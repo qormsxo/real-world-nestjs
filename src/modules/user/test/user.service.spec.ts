@@ -83,7 +83,7 @@ describe('UserService', () => {
     });
 
     describe('로그인', () => {
-      it('사용자를 찾을 수 없으면 UnauthorizedException 예외 발생해야함함', async () => {
+      it('사용자를 찾을 수 없으면 UnauthorizedException 예외 발생해야함', async () => {
         // 로그인 시 사용자를 찾을 수 없을 때 UnauthorizedException 발생 테스트
         const userLoginPayload: UserLoginPayload = {
           email: 'test@example.com',

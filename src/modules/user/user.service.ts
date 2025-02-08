@@ -67,6 +67,8 @@ export class UserService {
             where: { id: id },
             relations: ['profile'], // 'profile'을 함께 가져오기
         });
+        
+        
 
         return UserWithTokenDto.builder()
             .setEmail(user.email)
@@ -76,13 +78,13 @@ export class UserService {
             .build();
     }
     async updateUser(id: number, dto: UpdateUserDto): Promise<UserWithTokenDto> {
-
+        
         if (dto.user.password) dto.user.password = await this.hashPassword(dto.user.password)
 
         const user = await this.userRepository.findOneOrFail({
             where: { id: id },
             relations: ['profile'], // 'profile'을 함께 가져오기
-        });
+        });        
 
         user.update(dto.user);
         // 엔티티를 저장 (업데이트)

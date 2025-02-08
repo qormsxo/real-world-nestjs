@@ -1,4 +1,4 @@
-// src/config/typeorm.config.ts
+
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Article } from 'src/modules/article/article.entity';
 import { Comment } from 'src/modules/comment/comment.entity';
@@ -14,7 +14,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   port: 3306,
   username: process.env.DBUSER,
   password: process.env.DBPW,
-  database: 'realworld',
+  database: 'test',
   entities: [User, Profile,Article,Comment,Tag],
   synchronize: false, 
 };
