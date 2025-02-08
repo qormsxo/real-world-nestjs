@@ -63,6 +63,31 @@ export class FollowService {
         };
     }
 
+
+    @Transactional()
+    async unfollow(username: string, id: number): Promise<ProfileWrapperDto> {
+        const profile = await this.getProfileWithFollowers(username);
+        const follower = await this.getUserById(id);
+
+        // 팔로우 관계 확인
+        const follow = await this.followRepository.findOne({
+            where: { follower, following: profile },
+        })
+            || (() => { throw new NotFoundException('팔로우하지 않은 유저입니다.'); })()
+
+
+        // 언팔로우 follow 테이블에서 삭제
+        await this.followRepository.remove(follow);
+
+        // 프로필에서 팔로워 제거 후 저장
+        profile.followers = profile.followers.filter(f => f.follower.id !== id);
+        await this.profileRepository.save(profile);
+
+        return {
+            profile: ProfileResponseDto.toDto(profile, id),
+        };
+    }
+
     async getProfile(username: string, id: number): Promise<ProfileWrapperDto> {
         const profile = await this.getProfileWithFollowers(username);
 
