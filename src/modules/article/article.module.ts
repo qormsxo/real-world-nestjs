@@ -8,13 +8,14 @@ import { User } from '../user/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import * as dotenv from 'dotenv';
 import { AuthModule } from 'src/auth/auth.module';
+import { Follow } from '../follow/follow.entity';
 dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Article, Tag, User]),
+    TypeOrmModule.forFeature([Article, Tag, User,Follow]),
   ],
   providers: [ArticleService],
   controllers: [ArticleController],

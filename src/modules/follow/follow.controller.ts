@@ -36,7 +36,6 @@ export class FollowController {
         @Param('username') username: string,
         @Request() req,
     ) : Promise<ProfileWrapperDto> {
-        console.log(username);
         
         return await this.followService.getProfile(username,req.user.id);
     }

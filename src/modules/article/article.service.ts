@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Profile } from '../profile/profile.entity';
 import { Transactional } from 'typeorm-transactional';
 import { Article } from './article.entity';
@@ -9,6 +9,8 @@ import { Tag } from '../tag/tag.entity';
 import { User } from '../user/user.entity';
 import { ArticleDto, ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
+import { Follow } from '../follow/follow.entity';
+import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 
 @Injectable()
 export class ArticleService {
@@ -21,6 +23,9 @@ export class ArticleService {
 
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+
+        @InjectRepository(Follow)
+        private readonly followRepository: Repository<Follow>,
     ) { }
 
     @Transactional()
@@ -120,6 +125,32 @@ export class ArticleService {
 
 
         return articles.map((article) => ArticleListDto.toDto(article, id))
+    }
+
+    async feed(id: number, query: PaginationDto) {
+
+        const { limit, offset } = query;
+
+        // 팔로우 하고 있는 사람 조회 
+        const followingUsers = await this.followRepository.find({
+            where: { follower: { id } },
+            relations: ['following.user'],
+        })
+
+        // 팔로우 하고 있는 사람들의 userid 추출
+        const followingUserIds = followingUsers.map(follow => follow.following.user.id)
+
+
+        const articles = await this.articleRepository.find({
+            where: { author: { id: In(followingUserIds) } },
+            relations: ['author', 'author.profile', 'tags'],
+            order: { createdAt: 'DESC' },
+            skip: offset,
+            take: limit
+        })
+
+        return articles.map((article) => ArticleListDto.toDto(article, id))
+
     }
 
 

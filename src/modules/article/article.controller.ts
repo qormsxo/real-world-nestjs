@@ -7,17 +7,18 @@ import { ArticleDto, ArticleListDto, ArticlesDto, CreateArticleResponseDto } fro
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
+import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 
 
 
-@Controller('')
+@Controller('/articles')
 export class ArticleController {
   constructor(
     private readonly articleService: ArticleService,
     private readonly authService: AuthService, // AuthService 주입
   ) { }
 
-  @Post('/articles')
+  @Post('')
   @UseGuards(JwtAuthGuard)
   async createArticle(
     @Request() req,
@@ -31,7 +32,7 @@ export class ArticleController {
 
 
 
-  @Get('/articles')
+  @Get('')
   async getAllArticles(
     @Query(new ValidationPipe({ transform: true })) query: ArticleQueryDto,
     @Request() req,
@@ -64,6 +65,19 @@ export class ArticleController {
       articlesCount: articleDtos.length,
     };
 
+  }
+
+  @Get('/feed')
+  @UseGuards(JwtAuthGuard)
+  async feed(
+    @Request() req,
+    @Query() query: PaginationDto // DTO 적용
+  ): Promise<ArticlesDto> {
+    const articles = await this.articleService.feed(req.user.id, query)
+    return {
+      articles: articles,
+      articlesCount: articles.length
+    }
   }
 
 }
