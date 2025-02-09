@@ -36,7 +36,7 @@ export class ArticleController {
     @Query(new ValidationPipe({ transform: true })) query: ArticleQueryDto,
     @Request() req,
   ): Promise<ArticlesDto> {
-    
+
     const authorizationHeader = req.headers['authorization'];
     let articleDtos: ArticleListDto[] = [];
     let userId: number | null = null;

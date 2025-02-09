@@ -42,7 +42,7 @@ export class ArticleService {
         });
         await this.articleRepository.save(article);
 
-        const articleDto: ArticleDto = ArticleDto.toDto(article);
+        const articleDto = ArticleDto.toDto(article);
 
         return { article: articleDto };
     }
@@ -52,9 +52,9 @@ export class ArticleService {
         return await this.userRepository.findOne({
             where: { id: id },
             relations: ['profile'], // 여기 추가!
-        }) 
-        || 
-        (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();;
+        })
+            ||
+            (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();;
     }
 
     private async addTags(tagList: string[]): Promise<Tag[]> {

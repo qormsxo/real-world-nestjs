@@ -14,9 +14,9 @@ dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 �
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Article,Tag,User]),
+    TypeOrmModule.forFeature([Article, Tag, User]),
   ],
-  providers: [ArticleService], 
+  providers: [ArticleService],
   controllers: [ArticleController],
 })
-export class ArticleModule {}
+export class ArticleModule { }

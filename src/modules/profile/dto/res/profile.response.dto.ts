@@ -17,7 +17,7 @@ export class ProfileResponseDto {
   following: boolean;
 
   static toDto(profile:Profile, id?:number) : ProfileResponseDto {
-    let isFollow : boolean = false;
+    let isFollow = false;
     if(id && profile.followers){
         isFollow = profile.followers.some(follow => follow.follower.id === id) 
     }
