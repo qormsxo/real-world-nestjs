@@ -154,11 +154,11 @@ export class ArticleService {
     }
 
     async findBySlug(slug:string): Promise<ArticleListDto> {48
-        const article  = await this.articleRepository.findOneOrFail({
+        const article  = await this.articleRepository.findOne({
             // where: { slug: Like(`%${slug}%`) },
             where: { slug },
             relations: ['author', 'author.profile', 'tags'],
-        })
+        }) || (()=>{ throw new NotFoundException("게시물을 찾을 수 없습니다.")})()
 
         return ArticleListDto.toDto(article,undefined)
     }
