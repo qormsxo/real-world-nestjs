@@ -66,15 +66,7 @@ export class ArticleController {
 
   }
 
-  @Get(':slug')
-  // @UseGuards(JwtAuthGuard)
-  async getArticleBySlug(
-    @Param('slug') slug : string
-  ) {
-    return await this.articleService.findBySlug(slug);
-  }
-
-
+  
   @Get('/feed')
   @UseGuards(JwtAuthGuard)
   async feed(
@@ -87,5 +79,15 @@ export class ArticleController {
       articlesCount: articles.length
     }
   }
+
+  @Get(':slug')
+  // @UseGuards(JwtAuthGuard)
+  async getArticleBySlug(
+    @Param('slug') slug : string
+  ) {
+    return await this.articleService.findBySlug(slug);
+  }
+
+
 
 }

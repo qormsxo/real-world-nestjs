@@ -22,6 +22,7 @@ export class CreateArticleDto {
 }
 
 export class CreateArticleRequestDto {
+    @IsNotEmpty({ message: '게시물 객체는 필수 항목입니다.' })
     @ValidateNested()
     @Type(() => CreateArticleDto) // Transform을 위한 데코레이터
     article: CreateArticleDto;

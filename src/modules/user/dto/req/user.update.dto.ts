@@ -1,12 +1,11 @@
-import { IsOptional, IsString, IsEmail } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsEmail, ValidateNested } from 'class-validator';
 
 
-export class UpdateUserDto {
-  user:UpdateUserPayload
-}
 
-export class UpdateUserPayload{
-    @IsOptional()
+
+export class UpdateUserPayload {
+  @IsOptional()
   @IsString()
   username?: string;
 
@@ -25,4 +24,11 @@ export class UpdateUserPayload{
   @IsOptional()
   @IsString()
   image?: string;
+}
+
+
+export class UpdateUserDto {
+  @ValidateNested()
+  @Type(() => UpdateUserPayload) // user 속성의 타입 변환
+  user: UpdateUserPayload; // user는 옵션으로 받음
 }
