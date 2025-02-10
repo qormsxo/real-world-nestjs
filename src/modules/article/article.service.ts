@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { Profile } from '../profile/profile.entity';
 import { Transactional } from 'typeorm-transactional';
 import { Article } from './article.entity';
@@ -151,6 +151,16 @@ export class ArticleService {
 
         return articles.map((article) => ArticleListDto.toDto(article, id))
 
+    }
+
+    async findBySlug(slug:string): Promise<ArticleListDto> {48
+        const article  = await this.articleRepository.findOneOrFail({
+            // where: { slug: Like(`%${slug}%`) },
+            where: { slug },
+            relations: ['author', 'author.profile', 'tags'],
+        })
+
+        return ArticleListDto.toDto(article,undefined)
     }
 
 

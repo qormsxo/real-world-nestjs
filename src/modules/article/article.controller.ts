@@ -1,11 +1,10 @@
-import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, Post, Query, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, Param, Post, Query, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { ArticleService } from './article.service';
-import { CreateArticleDto, CreateArticleRequestDto } from './dto/req/article.create.dto';
-import { ArticleDto, ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
+import { CreateArticleRequestDto } from './dto/req/article.create.dto';
+import { ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
-import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 
@@ -66,6 +65,15 @@ export class ArticleController {
     };
 
   }
+
+  @Get(':slug')
+  // @UseGuards(JwtAuthGuard)
+  async getArticleBySlug(
+    @Param('slug') slug : string
+  ) {
+    return await this.articleService.findBySlug(slug);
+  }
+
 
   @Get('/feed')
   @UseGuards(JwtAuthGuard)

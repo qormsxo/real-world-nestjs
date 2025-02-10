@@ -14,4 +14,8 @@ export class ArticleQueryDto extends PaginationDto{
   @IsOptional()
   @IsString()
   favorited?: string;
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
 }
