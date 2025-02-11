@@ -11,6 +11,7 @@ import { ArticleDto, ArticleListDto, ArticlesDto, CreateArticleResponseDto } fro
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { Follow } from '../follow/follow.entity';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
+import { UpdateArticleDto } from './dto/req/article.update.dto';
 
 @Injectable()
 export class ArticleService {
@@ -75,8 +76,6 @@ export class ArticleService {
 
         return Promise.all(tagPromises);
     }
-
-
 
     private generateSlug(title: string): string {
         return title
@@ -153,14 +152,39 @@ export class ArticleService {
 
     }
 
-    async findBySlug(slug:string): Promise<ArticleListDto> {48
-        const article  = await this.articleRepository.findOne({
+    async findBySlug(slug: string): Promise<ArticleListDto> {
+        const article = await this.articleRepository.findOne({
             // where: { slug: Like(`%${slug}%`) },
             where: { slug },
             relations: ['author', 'author.profile', 'tags'],
-        }) || (()=>{ throw new NotFoundException("게시물을 찾을 수 없습니다.")})()
+        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
 
-        return ArticleListDto.toDto(article,undefined)
+        return ArticleListDto.toDto(article, undefined)
+    }
+
+    async updateBySlug(slug: string, dto: UpdateArticleDto): Promise<ArticleListDto> {
+        const article = await this.articleRepository.findOne({
+            // where: { slug: Like(`%${slug}%`) },
+            where: { slug },
+            relations: ['author', 'author.profile', 'tags'],
+        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
+
+
+        const { title, description, body } = dto;
+
+        // 타이틀이 있으면 slug를 새로 생성
+        if (title) {
+            article.title = title;
+            article.slug = this.generateSlug(title);  // 새로운 slug 생성
+        }
+
+        if (description) article.description = description;
+        if (body) article.body = body;
+
+        // 데이터베이스에 업데이트
+        await this.articleRepository.save(article);
+
+        return ArticleListDto.toDto(article, undefined)
     }
 
 

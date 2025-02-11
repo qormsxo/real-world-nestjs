@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, Param, Post, Query, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, Param, Post, Put, Query, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { ArticleService } from './article.service';
@@ -7,6 +7,7 @@ import { ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
+import { UpdateArticleRequestDto } from './dto/req/article.update.dto';
 
 
 
@@ -86,6 +87,18 @@ export class ArticleController {
     @Param('slug') slug : string
   ) {
     return await this.articleService.findBySlug(slug);
+  }
+
+  
+
+  @Put(':slug')
+  @UseGuards(JwtAuthGuard)
+  async updateArticleBySlug(
+    @Param('slug') slug : string,
+    @Body() updateArticleRequestDto: UpdateArticleRequestDto, 
+  ) {
+    const { article } = updateArticleRequestDto;
+    return await this.articleService.updateBySlug(slug,article);
   }
 
 
