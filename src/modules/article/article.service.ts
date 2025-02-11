@@ -4,14 +4,15 @@ import { In, Like, Repository } from 'typeorm';
 import { Profile } from '../profile/profile.entity';
 import { Transactional } from 'typeorm-transactional';
 import { Article } from './article.entity';
-import { CreateArticleDto } from './dto/req/article.create.dto';
+import { ArticleCreateRequestBodyDto } from './dto/req/article.create.dto';
 import { Tag } from '../tag/tag.entity';
 import { User } from '../user/user.entity';
-import { ArticleDto, ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
+import { ArticleResponseDto,  ArticlesDto, ArticleCreateResponseDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { Follow } from '../follow/follow.entity';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 import { UpdateArticleDto } from './dto/req/article.update.dto';
+import { Favorite } from '../favorite/favorite.entity';
 
 @Injectable()
 export class ArticleService {
@@ -27,11 +28,14 @@ export class ArticleService {
 
         @InjectRepository(Follow)
         private readonly followRepository: Repository<Follow>,
+
+        @InjectRepository(Favorite)
+        private readonly favoriteRepository: Repository<Favorite>,
     ) { }
 
     @Transactional()
-    async createArticle(createArticleDto: CreateArticleDto, id: number): Promise<CreateArticleResponseDto> {
-        const { title, description, body, tagList } = createArticleDto;
+    async createArticle(dto: ArticleCreateRequestBodyDto, id: number): Promise<ArticleCreateResponseDto> {
+        const { title, description, body, tagList } = dto;
 
         // 프로필 정보를 가져오기 위해 relations 옵션 추가
         const author = await this.getAuthorById(id)
@@ -48,7 +52,7 @@ export class ArticleService {
         });
         await this.articleRepository.save(article);
 
-        const articleDto = ArticleDto.toDto(article);
+        const articleDto = ArticleResponseDto.toDto(article);
 
         return { article: articleDto };
     }
@@ -87,14 +91,17 @@ export class ArticleService {
             .replace(/^-+|-+$/g, '');
     }
 
-    async getAllArticles(query: ArticleQueryDto, id?: number): Promise<ArticleListDto[]> {
+    async getAllArticles(query: ArticleQueryDto, id?: number): Promise<ArticleResponseDto[]> {
 
         const { tag, author, favorited, limit, offset } = query;
         // 기본 쿼리로 필터링 없이 데이터를 먼저 가져옴
         let queryBuilder = this.articleRepository.createQueryBuilder('article')
             .leftJoinAndSelect('article.author', 'author')
             .leftJoinAndSelect('author.profile', 'profile')
-            .leftJoinAndSelect('article.tags', 'tags');
+            .leftJoinAndSelect('article.tags', 'tags')
+            .leftJoinAndSelect('article.favorites', 'favorite')
+            .leftJoinAndSelect('favorite.user', 'favoriteUser')
+            .leftJoin('favoriteUser.profile', 'favoriteProfile');
 
         // 필터링 조건을 순차적으로 추가
         if (tag) {
@@ -106,11 +113,7 @@ export class ArticleService {
         }
 
         if (favorited) {
-            queryBuilder
-                .leftJoin('article.favorites', 'favorite')
-                .leftJoin('favorite.user', 'favoriteUser')
-                .leftJoin('favoriteUser.profile', 'favoriteProfile')
-                .andWhere('favoriteProfile.username = :favorited', { favorited });
+            queryBuilder.andWhere('favoriteProfile.username = :favorited', { favorited });
         }
 
         // 필터링된 데이터를 기준으로 limit, offset을 적용
@@ -123,7 +126,7 @@ export class ArticleService {
         const articles = await queryBuilder.getMany();
 
 
-        return articles.map((article) => ArticleListDto.toDto(article, id))
+        return articles.map((article) => ArticleResponseDto.toDto(article, id))
     }
 
     async feed(id: number, query: PaginationDto) {
@@ -142,31 +145,32 @@ export class ArticleService {
 
         const articles = await this.articleRepository.find({
             where: { author: { id: In(followingUserIds) } },
-            relations: ['author', 'author.profile', 'tags'],
+            relations: ['author', 'author.profile', 'tags', 'favorites' , 'favorites.user'],
             order: { createdAt: 'DESC' },
             skip: offset,
             take: limit
         })
 
-        return articles.map((article) => ArticleListDto.toDto(article, id))
+        return articles.map((article) => ArticleResponseDto.toDto(article, id))
 
     }
 
-    async findBySlug(slug: string): Promise<ArticleListDto> {
+    async findBySlug(slug: string): Promise<ArticleResponseDto> {
         const article = await this.articleRepository.findOne({
             // where: { slug: Like(`%${slug}%`) },
             where: { slug },
             relations: ['author', 'author.profile', 'tags'],
         }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
 
-        return ArticleListDto.toDto(article, undefined)
+        return ArticleResponseDto.toDto(article, undefined)
     }
 
-    async updateBySlug(slug: string, dto: UpdateArticleDto): Promise<ArticleListDto> {
+    @Transactional()
+    async updateBySlug(id:number , slug: string, dto: UpdateArticleDto): Promise<ArticleResponseDto> {
         const article = await this.articleRepository.findOne({
             // where: { slug: Like(`%${slug}%`) },
             where: { slug },
-            relations: ['author', 'author.profile', 'tags'],
+            relations: ['author', 'author.profile', 'tags', 'favorites' , 'favorites.user'],
         }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
 
 
@@ -184,7 +188,34 @@ export class ArticleService {
         // 데이터베이스에 업데이트
         await this.articleRepository.save(article);
 
-        return ArticleListDto.toDto(article, undefined)
+        return ArticleResponseDto.toDto(article, id)
+    }
+
+    @Transactional()
+    async favoriteArticle(id:number, slug:string) : Promise<ArticleResponseDto> {
+        const article = await this.articleRepository.findOne({
+            // where: { slug: Like(`%${slug}%`) },
+            where: { slug },
+            relations: ['author', 'author.profile', 'tags', 'favorites' , 'favorites.user'],
+        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
+
+        // 사용자가 이미 좋아요를 눌렀는지 확인
+        const existingFavorite = await this.favoriteRepository.findOne({
+            where: { user: { id }, article: { id: article.id } },
+        });
+
+        if (!existingFavorite) {
+            // 좋아요 추가
+            const favorite = this.favoriteRepository.create({ user: { id }, article });
+            await this.favoriteRepository.save(favorite);
+        
+            article.favorites.push(favorite)
+            await this.articleRepository.save(article);
+        }
+        
+    
+        return ArticleResponseDto.toDto(article, id);
+
     }
 
 

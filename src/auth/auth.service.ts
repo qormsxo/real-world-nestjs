@@ -20,7 +20,7 @@ export class AuthService {
 
   // Authorization 헤더에서 토큰을 추출하는 메서드
   extractTokenFromHeader(authorizationHeader: string): string | null {
-    if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
+    if (authorizationHeader && authorizationHeader.startsWith('Token ')) {
       return authorizationHeader.split(' ')[1];
     }
     return null;

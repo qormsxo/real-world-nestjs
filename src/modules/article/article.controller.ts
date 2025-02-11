@@ -1,9 +1,9 @@
-import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, Param, Post, Put, Query, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, Param, Post, Put, Query, Req, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { ArticleService } from './article.service';
-import { CreateArticleRequestDto } from './dto/req/article.create.dto';
-import { ArticleListDto, ArticlesDto, CreateArticleResponseDto } from './dto/res/article.response.dto';
+import { ArticleCreateRequestDto } from './dto/req/article.create.dto';
+import { ArticleResponseDto, ArticlesDto, ArticleCreateResponseDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
@@ -22,10 +22,10 @@ export class ArticleController {
   @UseGuards(JwtAuthGuard)
   async createArticle(
     @Request() req,
-    @Body() createArticleReqDto: CreateArticleRequestDto
-  ): Promise<CreateArticleResponseDto> {
+    @Body() dto: ArticleCreateRequestDto
+  ): Promise<ArticleCreateResponseDto> {
 
-    const { article } = createArticleReqDto
+    const { article } = dto
     return this.articleService.createArticle(article, req.user.id);
 
   }
@@ -39,7 +39,7 @@ export class ArticleController {
   ): Promise<ArticlesDto> {
 
     const authorizationHeader = req.headers['authorization'];
-    let articleDtos: ArticleListDto[] = [];
+    let articleDtos: ArticleResponseDto[] = [];
     let userId: number | null = null;
 
     // JWT 토큰 검증 및 사용자 ID 추출
@@ -54,7 +54,7 @@ export class ArticleController {
         }
       }
     }
-
+    
     // userId가 있을 경우, 로그인한 사용자에 맞게 가져옴
     articleDtos = userId
       ? await this.articleService.getAllArticles(query, userId)
@@ -89,18 +89,27 @@ export class ArticleController {
     return await this.articleService.findBySlug(slug);
   }
 
-  
+
 
   @Put(':slug')
   @UseGuards(JwtAuthGuard)
   async updateArticleBySlug(
     @Param('slug') slug : string,
+    @Req() req ,
     @Body() updateArticleRequestDto: UpdateArticleRequestDto, 
   ) {
     const { article } = updateArticleRequestDto;
-    return await this.articleService.updateBySlug(slug,article);
+    return await this.articleService.updateBySlug(req.user.id,slug,article);
   }
 
 
+  @Post(':slug/favorite')
+  @UseGuards(JwtAuthGuard)
+  async favorite(
+    @Req() req,
+    @Param('slug') slug : string,
+  ) {
+    return await this.articleService.favoriteArticle(req.user.id, slug)
+  }
 
 }

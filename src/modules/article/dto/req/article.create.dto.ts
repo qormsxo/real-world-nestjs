@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, IsArray, ArrayNotEmpty, ArrayUnique, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateArticleDto {
+export class ArticleCreateRequestBodyDto {
     @IsString()
     @IsNotEmpty()
     title: string;
@@ -21,9 +21,9 @@ export class CreateArticleDto {
     tagList: string[];
 }
 
-export class CreateArticleRequestDto {
+export class ArticleCreateRequestDto {
     @IsNotEmpty({ message: '게시물 객체는 필수 항목입니다.' })
     @ValidateNested()
-    @Type(() => CreateArticleDto) // Transform을 위한 데코레이터
-    article: CreateArticleDto;
+    @Type(() => ArticleCreateRequestBodyDto)
+    article: ArticleCreateRequestBodyDto;
 }
