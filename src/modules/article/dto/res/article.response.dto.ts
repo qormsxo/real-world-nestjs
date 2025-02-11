@@ -1,21 +1,6 @@
 import { Profile } from "src/modules/profile/profile.entity";
 import { Article } from "../../article.entity";
-
-export class AuthorDto {
-    username: string;
-    bio?: string;
-    image?: string;
-    following: boolean;
-
-    static toDto(profile: Profile): AuthorDto {
-        return {
-            username: profile.username,
-            bio: profile.bio,
-            image: profile.image,
-            following: false
-        }
-    }
-}
+import { ProfileResponseDto } from "src/modules/profile/dto/res/profile.response.dto";
 
 export class ArticleResponseDto {
     slug: string;
@@ -27,7 +12,7 @@ export class ArticleResponseDto {
     updatedAt: string;
     favorited: boolean;
     favoritesCount: number;
-    author: AuthorDto;
+    author: ProfileResponseDto;
 
     static toDto(article: Article, id?: number): ArticleResponseDto {
 
@@ -48,7 +33,7 @@ export class ArticleResponseDto {
             updatedAt: article.updatedAt.toISOString(),
             favorited: favorited,
             favoritesCount: favoritesCount,
-            author: AuthorDto.toDto(article.author.profile),
+            author: ProfileResponseDto.toDto(article.author.profile,id),
         };
     }
 }

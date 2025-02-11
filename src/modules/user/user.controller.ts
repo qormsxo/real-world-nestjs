@@ -32,7 +32,6 @@ export class UserController {
   async getUser(@Request() req): Promise<UserResponseDto>{
 
     const token = req.headers.authorization?.split(' ')[1];  // "Bearer <token>"에서 토큰만 추출
-    console.log(req.user);
     const user = await this.userService.findById(req.user.id);  // 유저 정보 찾기
     user.setToken(token)
     return new UserResponseDto(

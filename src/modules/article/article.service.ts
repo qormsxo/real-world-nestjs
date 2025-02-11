@@ -98,10 +98,12 @@ export class ArticleService {
         let queryBuilder = this.articleRepository.createQueryBuilder('article')
             .leftJoinAndSelect('article.author', 'author')
             .leftJoinAndSelect('author.profile', 'profile')
+            .leftJoinAndSelect('profile.followers' , 'follow')
+            .leftJoinAndSelect('follow.follower', 'followerUser')  // 실제 팔로워인 user 로드
             .leftJoinAndSelect('article.tags', 'tags')
             .leftJoinAndSelect('article.favorites', 'favorite')
             .leftJoinAndSelect('favorite.user', 'favoriteUser')
-            .leftJoin('favoriteUser.profile', 'favoriteProfile');
+            .leftJoin('favoriteUser.profile', 'favoriteProfile')
 
         // 필터링 조건을 순차적으로 추가
         if (tag) {
@@ -125,7 +127,6 @@ export class ArticleService {
         // 결과 쿼리 실행
         const articles = await queryBuilder.getMany();
 
-
         return articles.map((article) => ArticleResponseDto.toDto(article, id))
     }
 
@@ -145,7 +146,7 @@ export class ArticleService {
 
         const articles = await this.articleRepository.find({
             where: { author: { id: In(followingUserIds) } },
-            relations: ['author', 'author.profile', 'tags', 'favorites' , 'favorites.user'],
+            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
             order: { createdAt: 'DESC' },
             skip: offset,
             take: limit
@@ -159,9 +160,10 @@ export class ArticleService {
         const article = await this.articleRepository.findOne({
             // where: { slug: Like(`%${slug}%`) },
             where: { slug },
-            relations: ['author', 'author.profile', 'tags'],
+            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
         }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
 
+        console.log(article.author.profile);
         return ArticleResponseDto.toDto(article, undefined)
     }
 
@@ -170,7 +172,7 @@ export class ArticleService {
         const article = await this.articleRepository.findOne({
             // where: { slug: Like(`%${slug}%`) },
             where: { slug },
-            relations: ['author', 'author.profile', 'tags', 'favorites' , 'favorites.user'],
+            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
         }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
 
 
@@ -196,7 +198,7 @@ export class ArticleService {
         const article = await this.articleRepository.findOne({
             // where: { slug: Like(`%${slug}%`) },
             where: { slug },
-            relations: ['author', 'author.profile', 'tags', 'favorites' , 'favorites.user'],
+            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
         }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
 
         // 사용자가 이미 좋아요를 눌렀는지 확인
