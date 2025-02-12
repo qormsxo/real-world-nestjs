@@ -1,6 +1,5 @@
-import { Profile } from "src/modules/profile/profile.entity";
 import { Article } from "../../article.entity";
-import { ProfileResponseDto } from "src/modules/profile/dto/res/profile.response.dto";
+import { ProfileResponseDto } from "../../../profile/dto/res/profile.response.dto";
 
 export class ArticleResponseDto {
     slug: string;

@@ -68,8 +68,6 @@ export class UserService {
             relations: ['profile'], // 'profile'을 함께 가져오기
         });
         
-        
-
         return UserWithTokenDto.builder()
             .setEmail(user.email)
             .setUsername(user.profile.username)
