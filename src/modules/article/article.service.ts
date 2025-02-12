@@ -18,10 +18,10 @@ import { Favorite } from '../favorite/favorite.entity';
 export class ArticleService {
     constructor(
         @InjectRepository(Article)
-        private articleRepository: Repository<Article>,
+        private readonly articleRepository: Repository<Article>,
 
         @InjectRepository(Tag)
-        private tagRepository: Repository<Tag>,
+        private readonly tagRepository: Repository<Tag>,
 
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
@@ -62,23 +62,21 @@ export class ArticleService {
         return await this.userRepository.findOne({
             where: { id: id },
             relations: ['profile'], // 여기 추가!
-        })
-            ||
-            (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();;
+        }) || (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();;
     }
 
     private async addTags(tagList: string[]): Promise<Tag[]> {
-
-        const tagPromises = tagList.map(async (tagName) => {
-            let tag = await this.tagRepository.findOneBy({ name: tagName });
-            if (!tag) {
-                tag = this.tagRepository.create({ name: tagName });
-                await this.tagRepository.save(tag);
-            }
-            return tag;
-        });
-
-        return Promise.all(tagPromises);
+        const tags = await Promise.all(
+            tagList.map(async (tagName) => {
+                let tag = await this.tagRepository.findOneBy({ name: tagName });
+                if (!tag) {
+                    tag = this.tagRepository.create({ name: tagName });
+                    await this.tagRepository.save(tag);
+                }
+                return tag;
+            }),
+        );
+        return tags;
     }
 
     private generateSlug(title: string): string {
@@ -156,25 +154,25 @@ export class ArticleService {
 
     }
 
-    async findBySlug(slug: string): Promise<ArticleResponseDto> {
+    private async findArticleBySlug(slug: string): Promise<Article> {
         const article = await this.articleRepository.findOne({
-            // where: { slug: Like(`%${slug}%`) },
             where: { slug },
-            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
-        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
+            relations: ['author', 'author.profile', 'tags', 'favorites', 'favorites.user'],
+        });
+        if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
+        return article;
+    }
 
-        console.log(article.author.profile);
+
+    async findBySlug(slug: string): Promise<ArticleResponseDto> {
+        const article = await this.findArticleBySlug(slug)
+
         return ArticleResponseDto.toDto(article, undefined)
     }
 
     @Transactional()
     async updateBySlug(id:number , slug: string, dto: UpdateArticleDto): Promise<ArticleResponseDto> {
-        const article = await this.articleRepository.findOne({
-            // where: { slug: Like(`%${slug}%`) },
-            where: { slug },
-            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
-        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
-
+        const article = await this.findArticleBySlug(slug);
 
         const { title, description, body } = dto;
 
@@ -195,11 +193,7 @@ export class ArticleService {
 
     @Transactional()
     async favoriteArticle(id:number, slug:string) : Promise<ArticleResponseDto> {
-        const article = await this.articleRepository.findOne({
-            // where: { slug: Like(`%${slug}%`) },
-            where: { slug },
-            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
-        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
+        const article = await this.findArticleBySlug(slug);
 
         // 사용자가 이미 좋아요를 눌렀는지 확인
         const existingFavorite = await this.favoriteRepository.findOne({
@@ -222,11 +216,7 @@ export class ArticleService {
 
     @Transactional()
     async unFavoriteArticle(id:number, slug:string) : Promise<ArticleResponseDto> {
-        const article = await this.articleRepository.findOne({
-            // where: { slug: Like(`%${slug}%`) },
-            where: { slug },
-            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
-        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
+        const article = await this.findArticleBySlug(slug);
 
         // 사용자가 이미 좋아요를 눌렀는지 확인
         const existingFavorite = await this.favoriteRepository.findOne({
