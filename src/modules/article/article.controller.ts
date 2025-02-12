@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, InternalServerErrorException, Param, Post, Put, Query, Req, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, InternalServerErrorException, Param, Post, Put, Query, Req, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { ArticleService } from './article.service';
@@ -110,6 +110,16 @@ export class ArticleController {
     @Param('slug') slug : string,
   ) {
     return await this.articleService.favoriteArticle(req.user.id, slug)
+  }
+
+  
+  @Delete(':slug/favorite')
+  @UseGuards(JwtAuthGuard)
+  async unfavorite(
+    @Req() req,
+    @Param('slug') slug : string,
+  ) {
+    return await this.articleService.unFavoriteArticle(req.user.id, slug)
   }
 
 }

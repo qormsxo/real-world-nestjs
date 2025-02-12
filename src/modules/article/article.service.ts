@@ -220,5 +220,28 @@ export class ArticleService {
 
     }
 
+    @Transactional()
+    async unFavoriteArticle(id:number, slug:string) : Promise<ArticleResponseDto> {
+        const article = await this.articleRepository.findOne({
+            // where: { slug: Like(`%${slug}%`) },
+            where: { slug },
+            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites' , 'favorites.user'],
+        }) || (() => { throw new NotFoundException("게시물을 찾을 수 없습니다.") })()
+
+        // 사용자가 이미 좋아요를 눌렀는지 확인
+        const existingFavorite = await this.favoriteRepository.findOne({
+            where: { user: { id }, article: { id: article.id } },
+        });
+
+        if (existingFavorite) {
+            // 좋아요 제거
+            await this.favoriteRepository.remove(existingFavorite);
+            article.favorites = article.favorites.filter(fav => fav.user.id !== id);
+            await this.articleRepository.save(article);
+        }
+
+        return ArticleResponseDto.toDto(article, id);
+
+    }
 
 }
