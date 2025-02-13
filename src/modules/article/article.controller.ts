@@ -8,6 +8,7 @@ import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 import { UpdateArticleRequestDto } from './dto/req/article.update.dto';
+import { CommentCreateRequestDto } from '../comment/dto/req/comment.create.dto';
 
 
 
@@ -54,7 +55,7 @@ export class ArticleController {
         }
       }
     }
-    
+
     // userId가 있을 경우, 로그인한 사용자에 맞게 가져옴
     articleDtos = userId
       ? await this.articleService.getAllArticles(query, userId)
@@ -67,7 +68,7 @@ export class ArticleController {
 
   }
 
-  
+
   @Get('/feed')
   @UseGuards(JwtAuthGuard)
   async feed(
@@ -84,7 +85,7 @@ export class ArticleController {
   @Get(':slug')
   // @UseGuards(JwtAuthGuard)
   async getArticleBySlug(
-    @Param('slug') slug : string
+    @Param('slug') slug: string
   ) {
     return await this.articleService.findBySlug(slug);
   }
@@ -94,12 +95,12 @@ export class ArticleController {
   @Put(':slug')
   @UseGuards(JwtAuthGuard)
   async updateArticleBySlug(
-    @Param('slug') slug : string,
-    @Req() req ,
-    @Body() updateArticleRequestDto: UpdateArticleRequestDto, 
+    @Param('slug') slug: string,
+    @Req() req,
+    @Body() updateArticleRequestDto: UpdateArticleRequestDto,
   ) {
     const { article } = updateArticleRequestDto;
-    return await this.articleService.updateBySlug(req.user.id,slug,article);
+    return await this.articleService.updateBySlug(req.user.id, slug, article);
   }
 
 
@@ -107,19 +108,31 @@ export class ArticleController {
   @UseGuards(JwtAuthGuard)
   async favorite(
     @Req() req,
-    @Param('slug') slug : string,
+    @Param('slug') slug: string,
   ) {
     return await this.articleService.favoriteArticle(req.user.id, slug)
   }
 
-  
+
   @Delete(':slug/favorite')
   @UseGuards(JwtAuthGuard)
   async unfavorite(
     @Req() req,
-    @Param('slug') slug : string,
+    @Param('slug') slug: string,
   ) {
     return await this.articleService.unFavoriteArticle(req.user.id, slug)
   }
 
+  @Post(':slug/comments')
+  @UseGuards(JwtAuthGuard)
+  async comment(
+    @Req() req,
+    @Param('slug') slug: string,
+    @Body() reqDto: CommentCreateRequestDto,
+  ) {
+    const { comment } = reqDto
+    return {
+      comment: await this.articleService.createComment(req.user.id, slug, comment)
+    }
+  }
 }

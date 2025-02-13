@@ -10,13 +10,14 @@ import * as dotenv from 'dotenv';
 import { AuthModule } from 'src/auth/auth.module';
 import { Follow } from '../follow/follow.entity';
 import { Favorite } from '../favorite/favorite.entity';
+import { Comment } from '../comment/comment.entity';
 dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Article, Tag, User,Follow,Favorite]),
+    TypeOrmModule.forFeature([Article, Tag, User,Follow,Favorite, Comment]),
   ],
   providers: [ArticleService],
   controllers: [ArticleController],

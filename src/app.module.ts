@@ -26,7 +26,7 @@ import { FollowModule } from './modules/follow/follow.module';
         username: process.env.DBUSER,
         password: process.env.DBPW,
         database: 'realworld',
-        synchronize: false,
+        synchronize: true,
         dropSchema: false,
         logging: true, // true로 설정하면 SQL 쿼리, 오류 등을 콘솔에 출력
         entities: [
