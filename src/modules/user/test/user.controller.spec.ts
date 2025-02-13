@@ -3,7 +3,7 @@ import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
 import { JwtAuthGuard } from '../../../auth/auth.guard';
 import { UserResponseDto } from '../dto/res/user.response.dto';
-import { CreateUserRequestDto } from '../dto/req/user.create.dto';
+import { UserCreateRequestDto } from '../dto/req/user.create.dto';
 import { UserLoginDto } from '../dto/req/user.login.dto';
 import { UpdateUserDto } from '../dto/req/user.update.dto';
 import { ExecutionContext } from '@nestjs/common';
@@ -62,7 +62,7 @@ describe('UserController', () => {
 
   describe('회원가입', () => {
     it('새로운 사용자를 생성하고 UserResponseDto를 반환해야 함', async () => {
-      const createUserReqDto: CreateUserRequestDto = {
+      const createUserReqDto: UserCreateRequestDto = {
         user: { email: 'test@example.com', password: 'password', username: 'testuser' },
       };
 

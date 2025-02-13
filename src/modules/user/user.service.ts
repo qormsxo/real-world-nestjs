@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { CreateUserDto } from './dto/req/user.create.dto';
+import { UserCreateDto } from './dto/req/user.create.dto';
 import * as bcrypt from 'bcrypt';
 import { Profile } from '../profile/profile.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -24,7 +24,7 @@ export class UserService {
     ) { }
 
     @Transactional()
-    async signUp(userDto: CreateUserDto): Promise<UserWithTokenDto> {
+    async signUp(userDto: UserCreateDto): Promise<UserWithTokenDto> {
 
         const hashedPassword = await this.hashPassword(userDto.password)
 
