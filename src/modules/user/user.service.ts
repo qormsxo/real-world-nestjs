@@ -8,8 +8,8 @@ import { Profile } from '../profile/profile.entity';
 import { JwtService } from '@nestjs/jwt';
 import { UserWithTokenDto } from './dto/res/user.response.dto';
 import { Transactional } from 'typeorm-transactional';
-import { UserLoginPayload } from './dto/req/user.login.dto';
 import { UpdateUserDto } from './dto/req/user.update.dto';
+import { BaseUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -46,7 +46,7 @@ export class UserService {
     }
 
 
-    async signIn(userLoginPayload: UserLoginPayload): Promise<UserWithTokenDto> {
+    async signIn(userLoginPayload: BaseUserDto): Promise<UserWithTokenDto> {
         const user = await this.userRepository.findOne({
             where: { email: userLoginPayload.email },
             relations: ['profile']

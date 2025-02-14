@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typ
 import { Article } from '../article/article.entity';
 import { Comment } from '../comment/comment.entity';
 import { Profile } from '../profile/profile.entity';
-import { UpdateUserDto, UpdateUserPayload } from './dto/req/user.update.dto';
+import { UpdateUserPayload } from './dto/req/user.update.dto';
 import { Follow } from '../follow/follow.entity';
 import { Favorite } from '../favorite/favorite.entity';
 
