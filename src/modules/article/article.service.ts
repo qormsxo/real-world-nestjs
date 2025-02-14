@@ -173,7 +173,7 @@ export class ArticleService {
     async findBySlug(slug: string): Promise<ArticleResponseDto> {
         const article = await this.findArticleBySlug(slug)
 
-        return ArticleResponseDto.toDto(article, undefined)
+        return ArticleResponseDto.toDto(article)
     }
 
     @Transactional()

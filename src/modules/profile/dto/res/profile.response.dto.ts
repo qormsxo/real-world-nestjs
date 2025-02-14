@@ -1,19 +1,10 @@
-import { IsString, IsOptional, IsBoolean } from 'class-validator';
+// import { IsString, IsOptional, IsBoolean } from 'class-validator';
 import { Profile } from '../../profile.entity';
 
 export class ProfileResponseDto {
-  @IsString()
   username: string;
-
-  @IsOptional()
-  @IsString()
   bio?: string;
-
-  @IsOptional()
-  @IsString()
   image?: string;
-
-  @IsBoolean()
   following: boolean;
 
   static toDto(profile:Profile, id?:number) : ProfileResponseDto {
