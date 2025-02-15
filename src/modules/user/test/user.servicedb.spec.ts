@@ -6,7 +6,7 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { Profile } from "../../profile/profile.entity";
 import { UserService } from "../user.service";
 import { JwtModule } from "@nestjs/jwt";
-import { CreateUserDto } from "../dto/req/user.create.dto";
+import { UserCreateDto } from "../dto/req/user.create.dto";
 import { UserLoginPayload } from "../dto/req/user.login.dto";
 import { UnauthorizedException } from "@nestjs/common";
 import * as bcrypt from 'bcrypt';
@@ -64,7 +64,7 @@ describe('userService', () => {
 
     describe('회원 가입', () => {
         it('사용자가 생성되고 토큰을 반환해야 함', async () => {
-            const userDto: CreateUserDto = {
+            const userDto: UserCreateDto = {
                 email: 'test@example.com',
                 password: 'password',
                 username: 'testuser',

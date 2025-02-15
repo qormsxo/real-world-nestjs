@@ -10,6 +10,7 @@ import { UserWithTokenDto } from './dto/res/user.response.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateUserDto } from './dto/req/user.update.dto';
 import { BaseUserDto } from './dto/user.dto';
+import { UserLoginDto, UserLoginPayload } from './dto/req/user.login.dto';
 
 @Injectable()
 export class UserService {
@@ -46,7 +47,7 @@ export class UserService {
     }
 
 
-    async signIn(userLoginPayload: BaseUserDto): Promise<UserWithTokenDto> {
+    async signIn(userLoginPayload: UserLoginPayload): Promise<UserWithTokenDto> {
         const user = await this.userRepository.findOne({
             where: { email: userLoginPayload.email },
             relations: ['profile']

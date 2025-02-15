@@ -1,11 +1,10 @@
 import { IsEmail, IsNotEmpty, MinLength, Matches, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { BaseUserDto } from '../user.dto';
+import { OmitType } from '@nestjs/mapped-types';
 
-export class UserCreateDto extends BaseUserDto{
-  @IsNotEmpty({ message: '이름은 필수 항목입니다.' })
-  username: string;
-}
+// 
+export class UserCreateDto extends OmitType(BaseUserDto, ['bio', 'image'] as const) {}
 
 export class UserCreateRequestDto {
   @IsNotEmpty({ message: '유저 객체는 필수 항목입니다.' })
