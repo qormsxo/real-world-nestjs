@@ -11,6 +11,7 @@ import { Favorite } from '../../favorite/favorite.entity';
 import { TestModule } from '../../../../test/test.module';
 import { ArticleCreateRequestBodyDto } from '../dto/req/article.create.dto';
 import { NotFoundException } from '@nestjs/common';
+import { Comment } from '../../comment/comment.entity';
 
 jest.mock('typeorm-transactional', () => ({
     Transactional: () => () => ({}),
@@ -23,6 +24,7 @@ describe('ArticleService', () => {
     let tagRepository: Repository<Tag>;
     let profileRepository: Repository<Profile>;
     let service: ArticleService;
+    let commentRepository: Repository<Comment>
 
     let user: User;
     let article: Article;
@@ -34,7 +36,7 @@ describe('ArticleService', () => {
         module = await Test.createTestingModule({
             imports: [
                 TestModule,
-                TypeOrmModule.forFeature([Article, User, Tag, Profile, Follow, Favorite]),
+                TypeOrmModule.forFeature([Article, User, Tag, Profile, Follow, Favorite, Comment]),
             ],
             providers: [ArticleService],
         }).compile();
@@ -44,6 +46,7 @@ describe('ArticleService', () => {
         userRepository = module.get(getRepositoryToken(User));
         tagRepository = module.get(getRepositoryToken(Tag));
         profileRepository = module.get(getRepositoryToken(Profile));
+        commentRepository = module.get(getRepositoryToken(Comment))
 
         await articleRepository.delete({});
         await userRepository.delete({});
@@ -61,7 +64,7 @@ describe('ArticleService', () => {
         });
 
         await profileRepository.save(profile);
-        
+
         // Tag 생성
         tag1 = await tagRepository.save(tagRepository.create({ name: 'nestjs' }));
         tag2 = await tagRepository.save(tagRepository.create({ name: 'typescript' }));
