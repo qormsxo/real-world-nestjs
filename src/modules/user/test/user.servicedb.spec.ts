@@ -70,10 +70,10 @@ describe('userService', () => {
                 username: 'testuser',
             };
     
-            const result = await service.signUp(userDto);
+            const { user } = await service.signUp(userDto);
     
-            expect(result).toHaveProperty('email', userDto.email);
-            expect(result).toHaveProperty('token');
+            expect(user).toHaveProperty('email', userDto.email);
+            expect(user).toHaveProperty('token');
     
             // 실제 DB에 데이터가 삽입되었는지 확인
             const userInDb = await userRepository.findOneOrFail({ where: { email: userDto.email } })
@@ -103,10 +103,10 @@ describe('userService', () => {
                 password: 'password',
             };
     
-            const result = await service.signIn(userLoginPayload);
+            const { user } = await service.signIn(userLoginPayload);
             
-            expect(result).toHaveProperty('email', userLoginPayload.email);
-            expect(result).toHaveProperty('token');
+            expect(user).toHaveProperty('email', userLoginPayload.email);
+            expect(user).toHaveProperty('token');
         });
     });
     
@@ -121,10 +121,10 @@ describe('userService', () => {
                 },
             };
             
-            const result = await service.updateUser(1, updateUserDto);
+            const { user } = await service.updateUser(1, updateUserDto);
     
-            expect(result).toHaveProperty('email', "test@example.com");
-            expect(result).toHaveProperty('token');
+            expect(user).toHaveProperty('email', "test@example.com");
+            expect(user).toHaveProperty('token');
     
             // DB에서  업데이트 여부 확인
             const updatedUser = await userRepository.findOneOrFail({ where: { id: 1 } })

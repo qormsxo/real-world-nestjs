@@ -60,25 +60,25 @@ describe('UserService', () => {
           username: 'testuser',
         };
 
-        const user = new User();
-        user.email = userDto.email;
-        user.password = await bcrypt.hash(userDto.password, 10);
+        const testUser = new User();
+        testUser.email = userDto.email;
+        testUser.password = await bcrypt.hash(userDto.password, 10);
 
         const profile = new Profile();
         profile.username = userDto.username;
-        profile.user = user;
+        profile.user = testUser;
 
         // UserRepository와 ProfileRepository의 메서드를 mock 처리하여 테스트 준비
-        jest.spyOn(userRepository, 'create').mockReturnValue(user);  // userRepository.create 호출 시 user 반환
-        jest.spyOn(userRepository, 'save').mockResolvedValue(user);  // userRepository.save 호출 시 user 반환
+        jest.spyOn(userRepository, 'create').mockReturnValue(testUser);  // userRepository.create 호출 시 user 반환
+        jest.spyOn(userRepository, 'save').mockResolvedValue(testUser);  // userRepository.save 호출 시 user 반환
         jest.spyOn(profileRepository, 'create').mockReturnValue(profile);  // profileRepository.create 호출 시 profile 반환
         jest.spyOn(profileRepository, 'save').mockResolvedValue(profile);  // profileRepository.save 호출 시 profile 반환
 
-        const result = await userService.signUp(userDto);  // 가입 서비스 호출
+        const { user } = await userService.signUp(userDto);  // 가입 서비스 호출
 
         // 반환된 결과에 이메일과 토큰이 포함되어 있는지 확인
-        expect(result).toHaveProperty('email', userDto.email);
-        expect(result).toHaveProperty('token');
+        expect(user).toHaveProperty('email', userDto.email);
+        expect(user).toHaveProperty('token');
       });
     });
 
@@ -106,18 +106,18 @@ describe('UserService', () => {
           password: 'password',
         };
 
-        const user = new User();
-        user.email = userLoginPayload.email;
-        user.password = await bcrypt.hash(userLoginPayload.password, 10);
-        user.profile = new Profile();  // mock된 Profile 추가
+        const testUser = new User();
+        testUser.email = userLoginPayload.email;
+        testUser.password = await bcrypt.hash(userLoginPayload.password, 10);
+        testUser.profile = new Profile();  // mock된 Profile 추가
 
-        jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);  // 사용자 조회(mock 처리)
+        jest.spyOn(userRepository, 'findOne').mockResolvedValue(testUser);  // 사용자 조회(mock 처리)
 
-        const result = await userService.signIn(userLoginPayload);  // 로그인 서비스 호출
+        const { user } = await userService.signIn(userLoginPayload);  // 가입 서비스 호출
 
         // 반환된 결과에 이메일과 토큰이 포함되어 있는지 확인
-        expect(result).toHaveProperty('email', userLoginPayload.email);
-        expect(result).toHaveProperty('token');
+        expect(user).toHaveProperty('email', userLoginPayload.email);
+        expect(user).toHaveProperty('token');
       });
     });
 
@@ -130,23 +130,23 @@ describe('UserService', () => {
           },
         };
 
-        const user = new User();
-        user.id = 1;
-        user.email = 'test@example.com';
-        user.password = await bcrypt.hash('oldpassword', 10);  // 기존 비밀번호
-        user.profile = new Profile();
-        user.profile.username = 'testuser';
+        const testUser = new User();
+        testUser.id = 1;
+        testUser.email = 'test@example.com';
+        testUser.password = await bcrypt.hash('oldpassword', 10);  // 기존 비밀번호
+        testUser.profile = new Profile();
+        testUser.profile.username = 'testuser';
 
         // UserRepository와 ProfileRepository의 메서드를 mock 처리하여 테스트 준비
-        jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);  // findOneOrFail 호출 시 user 반환
-        jest.spyOn(userRepository, 'save').mockResolvedValue(user);  // save 호출 시 user 반환
-        jest.spyOn(profileRepository, 'save').mockResolvedValue(user.profile);  // profile 저장(mock 처리)
+        jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(testUser);  // findOneOrFail 호출 시 user 반환
+        jest.spyOn(userRepository, 'save').mockResolvedValue(testUser);  // save 호출 시 user 반환
+        jest.spyOn(profileRepository, 'save').mockResolvedValue(testUser.profile);  // profile 저장(mock 처리)
 
-        const result = await userService.updateUser(1, updateUserDto);  // 사용자 업데이트 서비스 호출
+        const { user } = await userService.updateUser(1, updateUserDto);  // 사용자 업데이트 서비스 호출
 
         // 반환된 결과에 이메일과 토큰이 포함되어 있는지 확인
-        expect(result).toHaveProperty('email', user.email);
-        expect(result).toHaveProperty('token');
+        expect(user).toHaveProperty('email', user.email);
+        expect(user).toHaveProperty('token');
       });
     });
 });

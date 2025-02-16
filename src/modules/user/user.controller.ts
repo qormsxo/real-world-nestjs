@@ -11,42 +11,37 @@ import { UpdateUserDto } from './dto/req/user.update.dto';
 export class UserController {
   constructor(
     private readonly userService: UserService
-) {}
+  ) { }
 
   @Post('/users')
   async signUp(@Body() createUserReqDto: UserCreateRequestDto): Promise<UserResponseDto> {
     const { user } = createUserReqDto;
-    return new UserResponseDto(
-        await this.userService.signUp(user)
-    );  
+    return await this.userService.signUp(user)
+
   }
   @Post('/users/login')
-  async logIn(@Body() loginDto : UserLoginDto): Promise<UserResponseDto> {
+  async logIn(@Body() loginDto: UserLoginDto): Promise<UserResponseDto> {
     const { user } = loginDto;
-    return new UserResponseDto(
-      await this.userService.signIn(user)
-    )
+    return await this.userService.signIn(user)
+
   }
   @Get('/user')
   @UseGuards(JwtAuthGuard)
-  async getUser(@Request() req): Promise<UserResponseDto>{
+  async getUser(@Request() req): Promise<UserResponseDto> {
 
     const token = req.headers.authorization?.split(' ')[1];  // "Bearer <token>"에서 토큰만 추출
-    const user = await this.userService.findById(req.user.id);  // 유저 정보 찾기
-    user.setToken(token)
-    return new UserResponseDto(
-      user
-    )
+    const user = await this.userService.findById(req.user.id, token);  // 유저 정보 찾기
+    return user;
+
   }
   @Put('/user')
   @UseGuards(JwtAuthGuard)
-  async updateUser(@Body() updateUserDto: UpdateUserDto, @Request() req){
-    const token = req.headers.authorization?.split(' ')[1];  // "Bearer <token>"에서 토큰만 추출
+  async updateUser(@Body() updateUserDto: UpdateUserDto, @Request() req) {
+    const token = req.headers.authorization?.split(' ')[1];  // "Token <token>"에서 토큰만 추출
 
-    const user = await this.userService.updateUser(req.user.id,updateUserDto);  // 유저 정보 찾기
-    user.setToken(token)
-    return new UserResponseDto(
-      user
-    )
+    const user = await this.userService.updateUser(req.user.id, updateUserDto);  // 유저 정보 찾기
+    user.user.setToken(token)
+    
+    return user
   }
 }

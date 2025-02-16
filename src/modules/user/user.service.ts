@@ -6,7 +6,7 @@ import { UserCreateDto } from './dto/req/user.create.dto';
 import * as bcrypt from 'bcrypt';
 import { Profile } from '../profile/profile.entity';
 import { JwtService } from '@nestjs/jwt';
-import { UserWithTokenDto } from './dto/res/user.response.dto';
+import { UserResponseDto, UserWithTokenDto } from './dto/res/user.response.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateUserDto } from './dto/req/user.update.dto';
 import { BaseUserDto } from './dto/user.dto';
@@ -25,7 +25,7 @@ export class UserService {
     ) { }
 
     @Transactional()
-    async signUp(userDto: UserCreateDto): Promise<UserWithTokenDto> {
+    async signUp(userDto: UserCreateDto): Promise<UserResponseDto> {
 
         const hashedPassword = await this.hashPassword(userDto.password)
 
@@ -43,11 +43,13 @@ export class UserService {
 
         await this.profileRepository.save(profile);
 
-        return this.createUserResponse(savedUser);
+        return {
+            user: this.createUserResponse(savedUser)
+        }
     }
 
 
-    async signIn(userLoginPayload: UserLoginPayload): Promise<UserWithTokenDto> {
+    async signIn(userLoginPayload: UserLoginPayload): Promise<UserResponseDto> {
         const user = await this.userRepository.findOne({
             where: { email: userLoginPayload.email },
             relations: ['profile']
@@ -61,22 +63,27 @@ export class UserService {
         if (!isPasswordValid) {
             throw new UnauthorizedException('비밀번호가 올바르지 않습니다.');
         }
-        return this.createUserResponse(user);
+        return {
+            user :this.createUserResponse(user)
+        }
     }
-    async findById(id: number): Promise<UserWithTokenDto> {
+    async findById(id: number, token:string): Promise<UserResponseDto> {
         const user = await this.userRepository.findOneOrFail({
             where: { id: id },
             relations: ['profile'], // 'profile'을 함께 가져오기
         });
         
-        return UserWithTokenDto.builder()
-            .setEmail(user.email)
-            .setUsername(user.profile.username)
-            .setBio(user.profile.bio)
-            .setImage(user.profile.image)
-            .build();
+        return {
+            user: UserWithTokenDto.builder()
+                .setEmail(user.email)
+                .setUsername(user.profile.username)
+                .setBio(user.profile.bio)
+                .setImage(user.profile.image)
+                .setToken(token) // 요청에 온 토큰 그대로 넣어서 리턴 
+                .build()
+        }
     }
-    async updateUser(id: number, dto: UpdateUserDto): Promise<UserWithTokenDto> {
+    async updateUser(id: number, dto: UpdateUserDto): Promise<UserResponseDto> {
         
         if (dto.user.password) dto.user.password = await this.hashPassword(dto.user.password)
 
@@ -90,12 +97,14 @@ export class UserService {
         await this.userRepository.save(user);
         await this.profileRepository.save(user.profile)
 
-        return UserWithTokenDto.builder()
-            .setEmail(user.email)
-            .setUsername(user.profile.username)
-            .setBio(user.profile.bio)
-            .setImage(user.profile.image)
-            .build();
+        return {
+            user: UserWithTokenDto.builder()
+                .setEmail(user.email)
+                .setUsername(user.profile.username)
+                .setBio(user.profile.bio)
+                .setImage(user.profile.image)
+                .build()
+        } 
     }
 
     private async hashPassword(password: string): Promise<string> {
@@ -104,13 +113,13 @@ export class UserService {
 
     private createUserResponse(user: User): UserWithTokenDto {
         const token = this.jwtService.sign({ id: user.id, email: user.email });
-    
-        return new UserWithTokenDto(
-          user.email,
-          user.profile?.username,
-          user.profile?.bio,
-          user.profile?.image,
-          token,
-        );
+
+        return UserWithTokenDto.builder()
+            .setEmail(user.email)
+            .setUsername(user.profile?.username)
+            .setBio(user.profile?.bio,)
+            .setImage(user.profile?.image)
+            .setToken(token)
+            .build()
     }
 }

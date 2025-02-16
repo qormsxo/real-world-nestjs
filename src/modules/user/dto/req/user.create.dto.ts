@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength, Matches, ValidateNested } from 'class-validator';
+import { IsNotEmpty,  ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { BaseUserDto } from '../user.dto';
 import { OmitType } from '@nestjs/mapped-types';

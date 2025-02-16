@@ -1,11 +1,5 @@
 export class UserResponseDto {
   user: UserWithTokenDto
-
-  constructor(
-    user: UserWithTokenDto
-  ){
-    this.user = user;
-  }
 }
 
 export class UserWithTokenDto{
