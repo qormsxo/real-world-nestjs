@@ -24,8 +24,6 @@ describe('userService', () => {
     async function clear() {
         await profileRepository.delete({});  // Profile 테이블의 모든 데이터 삭제
         await userRepository.delete({});  // User 테이블의 모든 데이터 삭제
-
-
     }
     beforeAll(async () => {
         module = await Test.createTestingModule({

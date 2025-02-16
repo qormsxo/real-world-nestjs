@@ -1,14 +1,14 @@
 import { Body, Controller, Delete, ForbiddenException, Get, InternalServerErrorException, Param, Post, Put, Query, Req, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
 
-import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 import { ArticleService } from './article.service';
 import { ArticleCreateRequestDto } from './dto/req/article.create.dto';
 import { ArticleResponseDto, ArticlesDto, ArticleCreateResponseDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
-import { PaginationDto } from 'src/shared/dto/pagenation.dto';
+import { PaginationDto } from '../../shared/dto/pagenation.dto';
 import { UpdateArticleRequestDto } from './dto/req/article.update.dto';
 import { CommentCreateRequestDto } from '../comment/dto/req/comment.create.dto';
-import { JwtOptionalAuthGuard } from 'src/guard/jwt-optional-auth.guard';
+import { JwtOptionalAuthGuard } from '../../guard/jwt-optional-auth.guard';
 
 
 

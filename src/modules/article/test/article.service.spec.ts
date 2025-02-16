@@ -23,14 +23,21 @@ describe('ArticleService', () => {
     let userRepository: Repository<User>;
     let tagRepository: Repository<Tag>;
     let profileRepository: Repository<Profile>;
-    let service: ArticleService;
     let commentRepository: Repository<Comment>
+    let service: ArticleService;
+
 
     let user: User;
     let article: Article;
     let tag1: Tag;
     let tag2: Tag;
 
+    let clear = async () =>{
+
+        await profileRepository.delete({});
+        await articleRepository.delete({});
+        await userRepository.delete({});
+    } 
 
     beforeAll(async () => {
         module = await Test.createTestingModule({
@@ -48,10 +55,10 @@ describe('ArticleService', () => {
         profileRepository = module.get(getRepositoryToken(Profile));
         commentRepository = module.get(getRepositoryToken(Comment))
 
-        await articleRepository.delete({});
         await userRepository.delete({});
-        await tagRepository.delete({});
         await profileRepository.delete({});
+
+
 
         // User 생성
         user = await userRepository.save(userRepository.create({ email: 'articleTest@example.com', password: 'password' }));
@@ -89,7 +96,8 @@ describe('ArticleService', () => {
     });
 
     afterAll(async () => {
-
+        await clear();
+        // await someAsyncCleanupFunction();  // 비동기 작업이 종료될 때까지 기다림
         await module.close();
     });
 

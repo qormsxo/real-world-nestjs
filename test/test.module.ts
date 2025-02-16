@@ -1,14 +1,14 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Article } from "../src/modules/article/article.entity";
 import { Profile } from "../src/modules/profile/profile.entity";
 import { Tag } from "../src/modules/tag/tag.entity";
 import { User } from "../src/modules/user/user.entity";
-import { UserModule } from "../src/modules/user/user.module";
 import { Comment } from "../src/modules/comment/comment.entity";
 import { Follow } from "../src/modules/follow/follow.entity";
 import { Favorite } from "../src/modules/favorite/favorite.entity";
+import * as dotenv from 'dotenv';
+dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 @Module({
     imports: [
@@ -24,7 +24,6 @@ import { Favorite } from "../src/modules/favorite/favorite.entity";
             dropSchema: true,
             // logging: true,
         }),
-        UserModule
     ],
 })
 export class TestModule { }
