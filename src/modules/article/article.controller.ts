@@ -89,6 +89,7 @@ export class ArticleController {
   }
 
 
+
   @Post(':slug/favorite')
   @UseGuards(JwtAuthGuard)
   async favorite(
@@ -120,4 +121,45 @@ export class ArticleController {
       comment: await this.articleService.createComment(req.user.id, slug, comment)
     }
   }
+
+  @Get(':slug/comments')
+  @UseGuards(JwtOptionalAuthGuard)
+  async getCommentByArticle(
+    @Req() req,
+    @Param('slug') slug: string,
+  ) {
+
+    // JWT 토큰이 있을 경우 userId 추출, 없으면 null
+    const userId = req.user?.id ?? null;
+
+    return await this.articleService.findCommentsBySlug(userId, slug)
+  }
+
+  @Delete(':slug/comments/:commentId')
+  @UseGuards(JwtAuthGuard)
+  async deleteComment(
+    @Req() req,
+    @Param('slug') slug: string,
+    @Param('commentId') commentId: number,
+  ) {
+    return {
+    
+    }
+  }
+
+
+  @Delete(':slug')
+  @UseGuards(JwtAuthGuard)
+  async deleteArticle(
+    @Req() req,
+    @Param('slug') slug: string,
+    @Param('commentId') commentId: number,
+  ) {
+    return {
+    
+    }
+  }
+
+  
+
 }

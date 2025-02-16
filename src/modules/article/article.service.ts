@@ -15,7 +15,7 @@ import { UpdateArticleDto } from './dto/req/article.update.dto';
 import { Favorite } from '../favorite/favorite.entity';
 import { CommentCreateDto } from '../comment/dto/req/comment.create.dto';
 import { Comment } from '../comment/comment.entity';
-import { CommentResponseDto } from '../comment/dto/res/comment.response.dto';
+import { CommentResponseDto, CommentsDto } from '../comment/dto/res/comment.response.dto';
 
 @Injectable()
 export class ArticleService {
@@ -256,5 +256,22 @@ export class ArticleService {
 
         return CommentResponseDto.toDto(savedComment, id)
     }
+
+
+    async findCommentsBySlug(id: number, slug: string): Promise<CommentsDto> {
+        const article = await this.articleRepository.findOne({
+            where: {slug},
+            relations:['comments','comments.user','comments.user.profile','comments.user.profile.followers']
+        }) 
+        if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
+    
+
+        const commets = article.comments
+
+        return {
+            comments:  commets.map((comment)=> CommentResponseDto.toDto(comment, id)) 
+        }
+    }
+
 
 }

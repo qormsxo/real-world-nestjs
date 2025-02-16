@@ -20,6 +20,6 @@ export class Profile {
   @JoinColumn() // 🔥 여기 추가! Profile 테이블이 User의 외래 키(FK)를 가짐
   user: User;
 
-  @OneToMany(() => Follow, (follow) => follow.following)
-  followers: Follow[]; // 나를 팔로우하는 목록
+  @OneToMany(() => Follow, (follow) => follow.following ) 
+  followers: Follow[]; // 나를 팔로우하는 목록 
 }
