@@ -11,6 +11,7 @@ import { Tag } from '../tag/tag.entity';
 import { Follow } from '../follow/follow.entity';
 import { Favorite } from '../favorite/favorite.entity';
 import { CommentRepository } from './comment.repository';
+import { UserRepository } from '../user/user.repository';
 
 
 @Module({
@@ -18,7 +19,7 @@ import { CommentRepository } from './comment.repository';
     TypeOrmModule.forFeature([Comment,Article,User,Tag,Follow, Favorite]),
     ArticleModule
   ],
-  providers: [CommentService,CommentRepository],
+  providers: [CommentService,CommentRepository,UserRepository],
   controllers: [CommentController],
 })
 export class CommentModule { }
