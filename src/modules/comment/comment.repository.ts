@@ -4,10 +4,12 @@ import { Tag } from '../tag/tag.entity';  // Tag와 관련된 작업을 할 경�
 import { User } from '../user/user.entity';
 import { Comment } from './comment.entity';
 import { Article } from '../article/article.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class CommentRepository {
     constructor(
+        @InjectRepository(Comment)
         private readonly commentRepository: Repository<Comment>,
     ) {}
 

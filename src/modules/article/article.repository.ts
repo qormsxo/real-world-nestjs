@@ -4,11 +4,8 @@ import { In, Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { Tag } from '../tag/tag.entity';  // Tag와 관련된 작업을 할 경우
 import { User } from '../user/user.entity';
-import { Follow } from '../follow/follow.entity';
-import { Favorite } from '../favorite/favorite.entity';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
-import { UpdateArticleDto } from './dto/req/article.update.dto';
 
 @Injectable()
 export class ArticleRepository {
@@ -21,19 +18,12 @@ export class ArticleRepository {
 
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-
-        @InjectRepository(Follow)
-        private readonly followRepository: Repository<Follow>,
-
-        @InjectRepository(Favorite)
-        private readonly favoriteRepository: Repository<Favorite>,
     ) {}
 
     async getUserById(id: number): Promise<User> {
 
         return await this.userRepository.findOne({
             where: { id: id },
-            relations: ['profile'], // 여기 추가!
         }) || (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();;
     }
 

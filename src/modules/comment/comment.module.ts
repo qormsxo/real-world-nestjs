@@ -11,6 +11,7 @@ import { ArticleRepository } from '../article/article.repository';
 import { Tag } from '../tag/tag.entity';
 import { Follow } from '../follow/follow.entity';
 import { Favorite } from '../favorite/favorite.entity';
+import { CommentRepository } from './comment.repository';
 dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 
@@ -19,7 +20,7 @@ dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 �
     TypeOrmModule.forFeature([Comment,Article,User,Tag,Follow, Favorite]),
     ArticleModule
   ],
-  providers: [CommentService,ArticleRepository],
+  providers: [CommentService,CommentRepository],
   controllers: [CommentController],
 })
 export class CommentModule { }

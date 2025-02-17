@@ -6,12 +6,13 @@ import { Follow } from './follow.entity';
 import { Profile } from '../profile/profile.entity';
 import { User } from '../user/user.entity';
 import { ProfileResponseDto, ProfileWrapperDto } from '../profile/dto/res/profile.response.dto';
+import { FollowRepository } from './follow.repository';
 
 @Injectable()
 export class FollowService {
     constructor(
-        @InjectRepository(Follow)
-        private followRepository: Repository<Follow>,
+
+        private followRepository: FollowRepository,
 
         @InjectRepository(Profile)
         private readonly profileRepository: Repository<Profile>,
@@ -37,22 +38,17 @@ export class FollowService {
         const profile = await this.getProfileWithFollowers(username);
         const follower = await this.getUserById(id);
 
-        // 이미 팔로우 했는지 확인
-        const existingFollow = await this.followRepository.findOne({
-            where: { follower, following: profile },
-        });
-
-        if (existingFollow) {
+        if (await this.followRepository.isFollow(follower,profile)) {
             throw new ConflictException('이미 팔로우 한 유저입니다.');
         }
 
         // 팔로우 생성 및 저장
-        const follow = this.followRepository.create({
+        const follow = await this.followRepository.create(
             follower,
-            following: profile,
-        });
-
-        await this.followRepository.save(follow);
+            profile,
+        );
+        
+        await this.followRepository.save(follow)
 
         // 프로필에 팔로우를 수동으로 추가하고 갱신
         profile.followers.push(follow);
@@ -70,14 +66,11 @@ export class FollowService {
         const follower = await this.getUserById(id);
 
         // 팔로우 관계 확인
-        const follow = await this.followRepository.findOne({
-            where: { follower, following: profile },
-        })
-            || (() => { throw new NotFoundException('팔로우하지 않은 유저입니다.'); })()
+        const follow = await this.followRepository.findByUserAndProfile(follower,profile)
 
 
         // 언팔로우 follow 테이블에서 삭제
-        await this.followRepository.remove(follow);
+        await this.followRepository.delete(follow);
 
         // 프로필에서 팔로워 제거 후 저장
         profile.followers = profile.followers.filter(f => f.follower.id !== id);
@@ -95,4 +88,5 @@ export class FollowService {
             profile: ProfileResponseDto.toDto(profile, id),
         };
     }
+    
 }

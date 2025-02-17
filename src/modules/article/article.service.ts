@@ -14,6 +14,7 @@ import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 import { UpdateArticleDto } from './dto/req/article.update.dto';
 import { Favorite } from '../favorite/favorite.entity';
 import { ArticleRepository } from './article.repository';
+import { FollowRepository } from '../follow/follow.repository';
 
 @Injectable()
 export class ArticleService {
@@ -21,8 +22,7 @@ export class ArticleService {
 
         private readonly articleRepository: ArticleRepository,
 
-        @InjectRepository(Follow)
-        private readonly followRepository: Repository<Follow>,
+        private followRepository: FollowRepository,
 
         @InjectRepository(Favorite)
         private readonly favoriteRepository: Repository<Favorite>,
@@ -77,10 +77,7 @@ export class ArticleService {
     async feed(id: number, query: PaginationDto): Promise<ArticlesDto> {
 
         // 팔로우 하고 있는 사람 조회 
-        const followingUsers = await this.followRepository.find({
-            where: { follower: { id } },
-            relations: ['following.user'],
-        })
+        const followingUsers = await this.followRepository.findFollowingUser(id)
         // 팔로우 하고 있는 사람들의 userid 추출
         const followingUserIds = followingUsers.map(follow => follow.following.user.id)
 
@@ -179,47 +176,9 @@ export class ArticleService {
 
     }
 
-    // async createComment(id: number, slug: string, dto: CommentCreateDto): Promise<CommentResponseDto> {
-    //     const article = await this.findArticleBySlug(slug);
-
-    //     const commentedUser = await this.getUserById(id);
-
-    //     console.log(article.author.profile);
-
-    //     const comment = this.commentRepository.create({
-    //         article,
-    //         body: dto.body,
-    //         user: commentedUser
-    //     })
-    //     const savedComment = await this.commentRepository.save(comment);
-
-    //     return CommentResponseDto.toDto(savedComment, id)
-    // }
-
-
     async findArticlesBySlugforComments(slug: string): Promise<Article> {
         const article = await this.articleRepository.findArticlesBySlugforComments(slug)
         return article;
     }
-
-
-    // @Transactional()
-    // async deleteCommentsById(id: number, commentId: number, slug: string): Promise<void> {
-    //     await this.findBySlug(slug);
-
-    //     const comment = await this.commentRepository.findOne({
-    //         where: {
-    //             id: commentId,
-    //             article: { slug: slug }
-    //         },
-    //         relations: ['article', 'user'] // article, user 조인
-    //     }) 
-    //     if (!comment)  throw new NotFoundException('찾을 수 없는 댓글입니다.');
-    //     if (comment.user.id !== id) throw new ForbiddenException('작성자가 아닙니다.');
-
-    //     await this.commentRepository.remove(comment);
-
-    // }
-
 
 }

@@ -24,6 +24,7 @@ dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 �
             dropSchema: true,
             // logging: true,
         }),
+        TypeOrmModule.forFeature([Article, User, Tag, Profile, Follow, Favorite, Comment]),
     ],
 })
 export class TestModule { }

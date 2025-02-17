@@ -135,14 +135,14 @@ describe('ArticleService', () => {
     it('기사를 좋아요 해야 함', async () => {
         const result = await service.favoriteArticle(user.id, article.slug);
         // 기사의 좋아요 수가 0보다 커야 함
-        expect(result.favoritesCount).toBeGreaterThan(0);
+        expect(result.article.favoritesCount).toBeGreaterThan(0);
     });
 
     it('기사를 좋아요 취소해야 함', async () => {
         await service.favoriteArticle(user.id, article.slug);  // 먼저 좋아요
         const result = await service.unFavoriteArticle(user.id, article.slug);
         // 기사의 좋아요 수가 0이어야 함
-        expect(result.favoritesCount).toBe(0);
+        expect(result.article.favoritesCount).toBe(0);
     });
 
 });
