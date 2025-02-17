@@ -37,7 +37,7 @@ export class ArticleResponseDto {
     }
 }
 
-export class ArticleCreateResponseDto {
+export class ArticleDto {
     article: ArticleResponseDto;
 }
 

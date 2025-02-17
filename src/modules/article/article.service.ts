@@ -7,22 +7,19 @@ import { Article } from './article.entity';
 import { ArticleCreateRequestBodyDto } from './dto/req/article.create.dto';
 import { Tag } from '../tag/tag.entity';
 import { User } from '../user/user.entity';
-import { ArticleResponseDto, ArticlesDto, ArticleCreateResponseDto } from './dto/res/article.response.dto';
+import { ArticleResponseDto, ArticlesDto, ArticleDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { Follow } from '../follow/follow.entity';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 import { UpdateArticleDto } from './dto/req/article.update.dto';
 import { Favorite } from '../favorite/favorite.entity';
-import { CommentCreateDto } from '../comment/dto/req/comment.create.dto';
 import { ArticleRepository } from './article.repository';
-// import { Comment } from '../comment/comment.entity';
-// import { CommentResponseDto, CommentsDto } from '../comment/dto/res/comment.response.dto';
 
 @Injectable()
 export class ArticleService {
     constructor(
-        
-        private readonly articleRepository : ArticleRepository,
+
+        private readonly articleRepository: ArticleRepository,
 
         @InjectRepository(Follow)
         private readonly followRepository: Repository<Follow>,
@@ -32,7 +29,7 @@ export class ArticleService {
     ) { }
 
     @Transactional()
-    async createArticle(dto: ArticleCreateRequestBodyDto, id: number): Promise<ArticleCreateResponseDto> {
+    async createArticle(dto: ArticleCreateRequestBodyDto, id: number): Promise<ArticleDto> {
         const { title, description, body, tagList } = dto;
 
         const author = await this.articleRepository.getUserById(id)
@@ -66,15 +63,18 @@ export class ArticleService {
     }
 
     // 게시글 목록 페이징
-    async getAllArticles(query: ArticleQueryDto, id?: number): Promise<ArticleResponseDto[]> {
+    async getAllArticles(query: ArticleQueryDto, id?: number): Promise<ArticlesDto> {
 
         const articles = await this.articleRepository.getAllArticles(query);
 
-        return articles.map((article) => ArticleResponseDto.toDto(article, id))
+        return {
+            articles: articles.map((article) => ArticleResponseDto.toDto(article, id)),
+            articlesCount: articles.length
+        }
     }
 
     // 내가 팔로우 한 사람의 게시글 목록 페이징
-    async feed(id: number, query: PaginationDto) {
+    async feed(id: number, query: PaginationDto): Promise<ArticlesDto> {
 
         // 팔로우 하고 있는 사람 조회 
         const followingUsers = await this.followRepository.find({
@@ -85,9 +85,12 @@ export class ArticleService {
         const followingUserIds = followingUsers.map(follow => follow.following.user.id)
 
 
-        const articles = await this.articleRepository.feed(followingUserIds,query)
+        const articles = await this.articleRepository.feed(followingUserIds, query)
 
-        return articles.map((article) => ArticleResponseDto.toDto(article, id))
+        return {
+            articles: articles.map((article) => ArticleResponseDto.toDto(article, id)),
+            articlesCount: articles.length
+        }
 
     }
 
@@ -96,15 +99,17 @@ export class ArticleService {
     }
 
     // 슬러그로 게시글 조회
-    async findBySlug(slug: string): Promise<ArticleResponseDto> {
+    async findBySlug(slug: string): Promise<ArticleDto> {
         const article = await this.articleRepository.findArticleBySlug(slug)
 
-        return ArticleResponseDto.toDto(article)
+        return {
+            article: ArticleResponseDto.toDto(article),
+        }
     }
 
     // 게시글 업데이트 
     @Transactional()
-    async updateBySlug(id: number, slug: string, dto: UpdateArticleDto): Promise<ArticleResponseDto> {
+    async updateBySlug(id: number, slug: string, dto: UpdateArticleDto): Promise<ArticleDto> {
         const article = await this.articleRepository.findArticleBySlug(slug)
 
         const { title, description, body } = dto;
@@ -121,12 +126,14 @@ export class ArticleService {
         // 데이터베이스에 업데이트
         await this.articleRepository.save(article);
 
-        return ArticleResponseDto.toDto(article, id)
+        return {
+            article:ArticleResponseDto.toDto(article, id)
+        }
     }
 
 
     @Transactional()
-    async favoriteArticle(id: number, slug: string): Promise<ArticleResponseDto> {
+    async favoriteArticle(id: number, slug: string): Promise<ArticleDto> {
         const article = await this.findArticleBySlug(slug);
 
         // 사용자가 이미 좋아요를 눌렀는지 확인
@@ -144,12 +151,14 @@ export class ArticleService {
         }
 
 
-        return ArticleResponseDto.toDto(article, id);
+        return {
+            article: ArticleResponseDto.toDto(article, id)
+        }
 
     }
 
     @Transactional()
-    async unFavoriteArticle(id: number, slug: string): Promise<ArticleResponseDto> {
+    async unFavoriteArticle(id: number, slug: string): Promise<ArticleDto> {
         const article = await this.findArticleBySlug(slug);
 
         // 사용자가 이미 좋아요를 눌렀는지 확인
@@ -164,7 +173,9 @@ export class ArticleService {
             await this.articleRepository.save(article);
         }
 
-        return ArticleResponseDto.toDto(article, id);
+        return {
+            article:ArticleResponseDto.toDto(article, id)
+        }
 
     }
 
@@ -186,7 +197,7 @@ export class ArticleService {
     // }
 
 
-    async findArticlesBySlugforComments( slug: string): Promise<Article> {
+    async findArticlesBySlugforComments(slug: string): Promise<Article> {
         const article = await this.articleRepository.findArticlesBySlugforComments(slug)
         return article;
     }
@@ -205,9 +216,9 @@ export class ArticleService {
     //     }) 
     //     if (!comment)  throw new NotFoundException('찾을 수 없는 댓글입니다.');
     //     if (comment.user.id !== id) throw new ForbiddenException('작성자가 아닙니다.');
-        
+
     //     await this.commentRepository.remove(comment);
-        
+
     // }
 
 

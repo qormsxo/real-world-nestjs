@@ -58,18 +58,26 @@ export class ArticleRepository {
     async getAllArticles(query: ArticleQueryDto): Promise<Article[]>{
         const { tag, author, favorited, limit, offset } = query;
         let queryBuilder = this.articleRepository.createQueryBuilder('article')
+            .leftJoinAndSelect('article.tags', 'tags')
             .leftJoinAndSelect('article.author', 'author')
             .leftJoinAndSelect('author.profile', 'profile')
             .leftJoinAndSelect('profile.followers', 'follow')
             .leftJoinAndSelect('follow.follower', 'followerUser')  // 실제 팔로워인 user 로드
-            .leftJoinAndSelect('article.tags', 'tags')
             .leftJoinAndSelect('article.favorites', 'favorite')
             .leftJoinAndSelect('favorite.user', 'favoriteUser')
             .leftJoin('favoriteUser.profile', 'favoriteProfile')
 
         // 필터링 조건을 순차적으로 추가
         if (tag) {
-            queryBuilder.andWhere('tags.name = :tag', { tag });
+            queryBuilder.andWhere(qb => {
+                const subQuery = qb.subQuery()
+                    .select('article.id')
+                    .from('article', 'article')
+                    .leftJoin('article.tags', 'tags')
+                    .where('tags.name = :tag', { tag })
+                    .getQuery();
+                return 'article.id IN ' + subQuery;
+            });
         }
 
         if (author) {
@@ -96,17 +104,18 @@ export class ArticleRepository {
 
         return await this.articleRepository.find({
             where: { author: { id: In(followingUserIds) } },
-            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites', 'favorites.user'],
+            relations: ['author.profile.followers', 'tags', 'favorites.user'], // 'favorites' 제거
             order: { createdAt: 'DESC' },
             skip: offset,
             take: limit
-        })
+        });
+        
     }
 
     async findArticleBySlug(slug: string): Promise<Article> {
         const article = await this.articleRepository.findOne({
             where: { slug },
-            relations: ['author', 'author.profile', 'tags', 'favorites', 'favorites.user'],
+            relations: ['author.profile.followers', 'tags', 'favorites.user'], // 'favorites' 제거
         });
         if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
         return article;

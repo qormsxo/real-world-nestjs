@@ -3,7 +3,7 @@ import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, HttpStatus
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { ArticleService } from './article.service';
 import { ArticleCreateRequestDto } from './dto/req/article.create.dto';
-import { ArticleResponseDto, ArticlesDto, ArticleCreateResponseDto } from './dto/res/article.response.dto';
+import { ArticlesDto, ArticleDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { PaginationDto } from '../../shared/dto/pagenation.dto';
 import { UpdateArticleRequestDto } from './dto/req/article.update.dto';
@@ -23,7 +23,7 @@ export class ArticleController {
   async createArticle(
     @Request() req,
     @Body() dto: ArticleCreateRequestDto
-  ): Promise<ArticleCreateResponseDto> {
+  ): Promise<ArticleDto> {
 
     const { article } = dto
     return this.articleService.createArticle(article, req.user.id);
@@ -43,14 +43,10 @@ export class ArticleController {
     const userId = req.user?.id ?? null;
 
     // userId가 있을 경우, 로그인한 사용자에 맞게 가져옴
-    const articleDtos = userId
+    return userId
       ? await this.articleService.getAllArticles(query, userId)
       : await this.articleService.getAllArticles(query);
 
-    return {
-      articles: articleDtos,
-      articlesCount: articleDtos.length,
-    };
   }
 
 
@@ -60,18 +56,13 @@ export class ArticleController {
     @Request() req,
     @Query() query: PaginationDto // DTO 적용
   ): Promise<ArticlesDto> {
-    const articles = await this.articleService.feed(req.user.id, query)
-    return {
-      articles: articles,
-      articlesCount: articles.length
-    }
+    return await this.articleService.feed(req.user.id, query)
   }
 
   @Get(':slug')
-  // @UseGuards(JwtAuthGuard)
   async getArticleBySlug(
     @Param('slug') slug: string
-  ) {
+  ): Promise<ArticleDto> {
     return await this.articleService.findBySlug(slug);
   }
 
@@ -83,7 +74,7 @@ export class ArticleController {
     @Param('slug') slug: string,
     @Req() req,
     @Body() updateArticleRequestDto: UpdateArticleRequestDto,
-  ) {
+  ): Promise<ArticleDto> {
     const { article } = updateArticleRequestDto;
     return await this.articleService.updateBySlug(req.user.id, slug, article);
   }
