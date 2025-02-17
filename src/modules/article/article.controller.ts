@@ -91,14 +91,14 @@ export class ArticleController {
   }
 
 
-  // @Delete(':slug/favorite')
-  // @UseGuards(JwtAuthGuard)
-  // async unfavorite(
-  //   @Req() req,
-  //   @Param('slug') slug: string,
-  // ) {
-  //   return await this.articleService.unFavoriteArticle(req.user.id, slug)
-  // }
+  @Delete(':slug/favorite')
+  @UseGuards(JwtAuthGuard)
+  async unfavorite(
+    @Req() req,
+    @Param('slug') slug: string,
+  ) {
+    return await this.articleService.unFavoriteArticle(req.user.id, slug)
+  }
 
   // @Post(':slug/comments')
   // @UseGuards(JwtAuthGuard)
