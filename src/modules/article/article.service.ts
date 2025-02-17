@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Like, Repository } from 'typeorm';
 import { Profile } from '../profile/profile.entity';
@@ -271,6 +271,25 @@ export class ArticleService {
         return {
             comments:  commets.map((comment)=> CommentResponseDto.toDto(comment, id)) 
         }
+    }
+
+
+    @Transactional()
+    async deleteCommentsById(id: number, commentId: number, slug: string): Promise<void> {
+        await this.findBySlug(slug);
+
+        const comment = await this.commentRepository.findOne({
+            where: {
+                id: commentId,
+                article: { slug: slug }
+            },
+            relations: ['article', 'user'] // article, user 조인
+        }) 
+        if (!comment)  throw new NotFoundException('찾을 수 없는 댓글입니다.');
+        if (comment.user.id !== id) throw new ForbiddenException('작성자가 아닙니다.');
+        
+        await this.commentRepository.remove(comment);
+        
     }
 
 

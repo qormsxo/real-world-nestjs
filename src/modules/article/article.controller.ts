@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, InternalServerErrorException, Param, Post, Put, Query, Req, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, HttpStatus, InternalServerErrorException, Param, Post, Put, Query, Req, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { ArticleService } from './article.service';
@@ -136,15 +136,15 @@ export class ArticleController {
   }
 
   @Delete(':slug/comments/:commentId')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async deleteComment(
     @Req() req,
     @Param('slug') slug: string,
     @Param('commentId') commentId: number,
   ) {
-    return {
-    
-    }
+    await this.articleService.deleteCommentsById(req.user.id ,commentId,slug);
+    return { message: '댓글이 성공적으로 삭제되었습니다.' }; 
   }
 
 
