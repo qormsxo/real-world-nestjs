@@ -14,76 +14,46 @@ import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 import { UpdateArticleDto } from './dto/req/article.update.dto';
 import { Favorite } from '../favorite/favorite.entity';
 import { CommentCreateDto } from '../comment/dto/req/comment.create.dto';
-import { Comment } from '../comment/comment.entity';
-import { CommentResponseDto, CommentsDto } from '../comment/dto/res/comment.response.dto';
+import { ArticleRepository } from './article.repository';
+// import { Comment } from '../comment/comment.entity';
+// import { CommentResponseDto, CommentsDto } from '../comment/dto/res/comment.response.dto';
 
 @Injectable()
 export class ArticleService {
     constructor(
-        @InjectRepository(Article)
-        private readonly articleRepository: Repository<Article>,
-
-        @InjectRepository(Tag)
-        private readonly tagRepository: Repository<Tag>,
-
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
+        
+        private readonly articleRepository : ArticleRepository,
 
         @InjectRepository(Follow)
         private readonly followRepository: Repository<Follow>,
 
         @InjectRepository(Favorite)
         private readonly favoriteRepository: Repository<Favorite>,
-
-        @InjectRepository(Comment)
-        private readonly commentRepository: Repository<Comment>,
     ) { }
 
     @Transactional()
     async createArticle(dto: ArticleCreateRequestBodyDto, id: number): Promise<ArticleCreateResponseDto> {
         const { title, description, body, tagList } = dto;
 
-        const author = await this.getUserById(id)
-        const tags = await this.addTags(tagList);
+        const author = await this.articleRepository.getUserById(id)
+        const tags = await this.articleRepository.addTags(tagList);
 
         //Article 생성
-        const article = this.articleRepository.create({
-            title,
-            slug: this.generateSlug(title),
-            description,
-            body,
-            author,
-            tags,
-        });
-        await this.articleRepository.save(article);
+        const article = await this.articleRepository.save(Article.builder()
+            .setTitle(title)
+            .setSlug(this.generateSlug(title))
+            .setDescription(description)
+            .setBody(body)
+            .setAuthor(author)
+            .setTags(tags)
+            .build()
+        )
 
         const articleDto = ArticleResponseDto.toDto(article);
 
         return { article: articleDto };
     }
 
-
-    private async getUserById(id: number): Promise<User> {
-
-        return await this.userRepository.findOne({
-            where: { id: id },
-            relations: ['profile'], // 여기 추가!
-        }) || (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();;
-    }
-
-    private async addTags(tagList: string[]): Promise<Tag[]> {
-        const tags = await Promise.all(
-            tagList.map(async (tagName) => {
-                let tag = await this.tagRepository.findOneBy({ name: tagName });
-                if (!tag) {
-                    tag = this.tagRepository.create({ name: tagName });
-                    await this.tagRepository.save(tag);
-                }
-                return tag;
-            }),
-        );
-        return tags;
-    }
 
     private generateSlug(title: string): string {
         return title
@@ -95,90 +65,47 @@ export class ArticleService {
             .replace(/^-+|-+$/g, '');
     }
 
+    // 게시글 목록 페이징
     async getAllArticles(query: ArticleQueryDto, id?: number): Promise<ArticleResponseDto[]> {
 
-        const { tag, author, favorited, limit, offset } = query;
-        // 기본 쿼리로 필터링 없이 데이터를 먼저 가져옴
-        let queryBuilder = this.articleRepository.createQueryBuilder('article')
-            .leftJoinAndSelect('article.author', 'author')
-            .leftJoinAndSelect('author.profile', 'profile')
-            .leftJoinAndSelect('profile.followers', 'follow')
-            .leftJoinAndSelect('follow.follower', 'followerUser')  // 실제 팔로워인 user 로드
-            .leftJoinAndSelect('article.tags', 'tags')
-            .leftJoinAndSelect('article.favorites', 'favorite')
-            .leftJoinAndSelect('favorite.user', 'favoriteUser')
-            .leftJoin('favoriteUser.profile', 'favoriteProfile')
-
-        // 필터링 조건을 순차적으로 추가
-        if (tag) {
-            queryBuilder.andWhere('tags.name = :tag', { tag });
-        }
-
-        if (author) {
-            queryBuilder.andWhere('profile.username = :author', { author });
-        }
-
-        if (favorited) {
-            queryBuilder.andWhere('favoriteProfile.username = :favorited', { favorited });
-        }
-
-        // 필터링된 데이터를 기준으로 limit, offset을 적용
-        queryBuilder
-            .skip(offset)
-            .take(limit)
-            .orderBy('article.createdAt', 'DESC');
-
-        // 결과 쿼리 실행
-        const articles = await queryBuilder.getMany();
+        const articles = await this.articleRepository.getAllArticles(query);
 
         return articles.map((article) => ArticleResponseDto.toDto(article, id))
     }
 
+    // 내가 팔로우 한 사람의 게시글 목록 페이징
     async feed(id: number, query: PaginationDto) {
-
-        const { limit, offset } = query;
 
         // 팔로우 하고 있는 사람 조회 
         const followingUsers = await this.followRepository.find({
             where: { follower: { id } },
             relations: ['following.user'],
         })
-
         // 팔로우 하고 있는 사람들의 userid 추출
         const followingUserIds = followingUsers.map(follow => follow.following.user.id)
 
 
-        const articles = await this.articleRepository.find({
-            where: { author: { id: In(followingUserIds) } },
-            relations: ['author', 'author.profile', 'author.profile.followers', 'tags', 'favorites', 'favorites.user'],
-            order: { createdAt: 'DESC' },
-            skip: offset,
-            take: limit
-        })
+        const articles = await this.articleRepository.feed(followingUserIds,query)
 
         return articles.map((article) => ArticleResponseDto.toDto(article, id))
 
     }
 
-    private async findArticleBySlug(slug: string): Promise<Article> {
-        const article = await this.articleRepository.findOne({
-            where: { slug },
-            relations: ['author', 'author.profile', 'tags', 'favorites', 'favorites.user'],
-        });
-        if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
-        return article;
+    public async findArticleBySlug(slug: string): Promise<Article> {
+        return await this.articleRepository.findArticleBySlug(slug)
     }
 
-
+    // 슬러그로 게시글 조회
     async findBySlug(slug: string): Promise<ArticleResponseDto> {
-        const article = await this.findArticleBySlug(slug)
+        const article = await this.articleRepository.findArticleBySlug(slug)
 
         return ArticleResponseDto.toDto(article)
     }
 
+    // 게시글 업데이트 
     @Transactional()
     async updateBySlug(id: number, slug: string, dto: UpdateArticleDto): Promise<ArticleResponseDto> {
-        const article = await this.findArticleBySlug(slug);
+        const article = await this.articleRepository.findArticleBySlug(slug)
 
         const { title, description, body } = dto;
 
@@ -196,6 +123,7 @@ export class ArticleService {
 
         return ArticleResponseDto.toDto(article, id)
     }
+
 
     @Transactional()
     async favoriteArticle(id: number, slug: string): Promise<ArticleResponseDto> {
@@ -240,57 +168,47 @@ export class ArticleService {
 
     }
 
-    async createComment(id: number, slug: string, dto: CommentCreateDto): Promise<CommentResponseDto> {
-        const article = await this.findArticleBySlug(slug);
+    // async createComment(id: number, slug: string, dto: CommentCreateDto): Promise<CommentResponseDto> {
+    //     const article = await this.findArticleBySlug(slug);
 
-        const commentedUser = await this.getUserById(id);
+    //     const commentedUser = await this.getUserById(id);
 
-        console.log(article.author.profile);
+    //     console.log(article.author.profile);
 
-        const comment = this.commentRepository.create({
-            article,
-            body: dto.body,
-            user: commentedUser
-        })
-        const savedComment = await this.commentRepository.save(comment);
+    //     const comment = this.commentRepository.create({
+    //         article,
+    //         body: dto.body,
+    //         user: commentedUser
+    //     })
+    //     const savedComment = await this.commentRepository.save(comment);
 
-        return CommentResponseDto.toDto(savedComment, id)
+    //     return CommentResponseDto.toDto(savedComment, id)
+    // }
+
+
+    async findArticlesBySlugforComments( slug: string): Promise<Article> {
+        const article = await this.articleRepository.findArticlesBySlugforComments(slug)
+        return article;
     }
 
 
-    async findCommentsBySlug(id: number, slug: string): Promise<CommentsDto> {
-        const article = await this.articleRepository.findOne({
-            where: {slug},
-            relations:['comments','comments.user','comments.user.profile','comments.user.profile.followers']
-        }) 
-        if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
-    
+    // @Transactional()
+    // async deleteCommentsById(id: number, commentId: number, slug: string): Promise<void> {
+    //     await this.findBySlug(slug);
 
-        const commets = article.comments
-
-        return {
-            comments:  commets.map((comment)=> CommentResponseDto.toDto(comment, id)) 
-        }
-    }
-
-
-    @Transactional()
-    async deleteCommentsById(id: number, commentId: number, slug: string): Promise<void> {
-        await this.findBySlug(slug);
-
-        const comment = await this.commentRepository.findOne({
-            where: {
-                id: commentId,
-                article: { slug: slug }
-            },
-            relations: ['article', 'user'] // article, user 조인
-        }) 
-        if (!comment)  throw new NotFoundException('찾을 수 없는 댓글입니다.');
-        if (comment.user.id !== id) throw new ForbiddenException('작성자가 아닙니다.');
+    //     const comment = await this.commentRepository.findOne({
+    //         where: {
+    //             id: commentId,
+    //             article: { slug: slug }
+    //         },
+    //         relations: ['article', 'user'] // article, user 조인
+    //     }) 
+    //     if (!comment)  throw new NotFoundException('찾을 수 없는 댓글입니다.');
+    //     if (comment.user.id !== id) throw new ForbiddenException('작성자가 아닙니다.');
         
-        await this.commentRepository.remove(comment);
+    //     await this.commentRepository.remove(comment);
         
-    }
+    // }
 
 
 }

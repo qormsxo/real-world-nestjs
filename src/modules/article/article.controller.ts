@@ -100,52 +100,52 @@ export class ArticleController {
   }
 
 
-  @Delete(':slug/favorite')
-  @UseGuards(JwtAuthGuard)
-  async unfavorite(
-    @Req() req,
-    @Param('slug') slug: string,
-  ) {
-    return await this.articleService.unFavoriteArticle(req.user.id, slug)
-  }
+  // @Delete(':slug/favorite')
+  // @UseGuards(JwtAuthGuard)
+  // async unfavorite(
+  //   @Req() req,
+  //   @Param('slug') slug: string,
+  // ) {
+  //   return await this.articleService.unFavoriteArticle(req.user.id, slug)
+  // }
 
-  @Post(':slug/comments')
-  @UseGuards(JwtAuthGuard)
-  async comment(
-    @Req() req,
-    @Param('slug') slug: string,
-    @Body() reqDto: CommentCreateRequestDto,
-  ) {
-    const { comment } = reqDto
-    return {
-      comment: await this.articleService.createComment(req.user.id, slug, comment)
-    }
-  }
+  // @Post(':slug/comments')
+  // @UseGuards(JwtAuthGuard)
+  // async comment(
+  //   @Req() req,
+  //   @Param('slug') slug: string,
+  //   @Body() reqDto: CommentCreateRequestDto,
+  // ) {
+  //   const { comment } = reqDto
+  //   return {
+  //     comment: await this.articleService.createComment(req.user.id, slug, comment)
+  //   }
+  // }
 
-  @Get(':slug/comments')
-  @UseGuards(JwtOptionalAuthGuard)
-  async getCommentByArticle(
-    @Req() req,
-    @Param('slug') slug: string,
-  ) {
+  // @Get(':slug/comments')
+  // @UseGuards(JwtOptionalAuthGuard)
+  // async getCommentByArticle(
+  //   @Req() req,
+  //   @Param('slug') slug: string,
+  // ) {
 
-    // JWT 토큰이 있을 경우 userId 추출, 없으면 null
-    const userId = req.user?.id ?? null;
+  //   // JWT 토큰이 있을 경우 userId 추출, 없으면 null
+  //   const userId = req.user?.id ?? null;
 
-    return await this.articleService.findCommentsBySlug(userId, slug)
-  }
+  //   return await this.articleService.findCommentsBySlug(userId, slug)
+  // }
 
-  @Delete(':slug/comments/:commentId')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  async deleteComment(
-    @Req() req,
-    @Param('slug') slug: string,
-    @Param('commentId') commentId: number,
-  ) {
-    await this.articleService.deleteCommentsById(req.user.id ,commentId,slug);
-    return { message: '댓글이 성공적으로 삭제되었습니다.' }; 
-  }
+  // @Delete(':slug/comments/:commentId')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(JwtAuthGuard)
+  // async deleteComment(
+  //   @Req() req,
+  //   @Param('slug') slug: string,
+  //   @Param('commentId') commentId: number,
+  // ) {
+  //   await this.articleService.deleteCommentsById(req.user.id ,commentId,slug);
+  //   return { message: '댓글이 성공적으로 삭제되었습니다.' }; 
+  // }
 
 
   @Delete(':slug')

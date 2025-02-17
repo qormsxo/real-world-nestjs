@@ -5,20 +5,20 @@ import { Tag } from '../tag/tag.entity';
 import { ArticleService } from './article.service';
 import { ArticleController } from './article.controller';
 import { User } from '../user/user.entity';
-import { JwtModule } from '@nestjs/jwt';
 import * as dotenv from 'dotenv';
-import { AuthModule } from 'src/auth/auth.module';
 import { Follow } from '../follow/follow.entity';
 import { Favorite } from '../favorite/favorite.entity';
-import { Comment } from '../comment/comment.entity';
+import { ArticleRepository } from './article.repository';
 dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Article, Tag, User,Follow,Favorite, Comment]),
+    TypeOrmModule.forFeature([Article, Tag, User,Follow,Favorite]),
+    
   ],
-  providers: [ArticleService],
+  providers: [ArticleService,ArticleRepository],
   controllers: [ArticleController],
+  exports: [ArticleService]
 })
 export class ArticleModule { }

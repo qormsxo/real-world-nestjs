@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './middleware/flters/all-exception.filter';
 import { ArticleModule } from './modules/article/article.module';
 import { FollowModule } from './modules/follow/follow.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 
 
@@ -26,7 +27,7 @@ import { FollowModule } from './modules/follow/follow.module';
         username: process.env.DBUSER,
         password: process.env.DBPW,
         database: 'realworld',
-        synchronize: true,
+        synchronize: false,
         dropSchema: false,
         logging: true, // true로 설정하면 SQL 쿼리, 오류 등을 콘솔에 출력
         entities: [
@@ -39,6 +40,7 @@ import { FollowModule } from './modules/follow/follow.module';
     AuthModule,
     ArticleModule,
     FollowModule,
+    // CommentModule,
   ],
   controllers: [AppController],
   providers: [AllExceptionsFilter,AppService,WinstonLogger],
