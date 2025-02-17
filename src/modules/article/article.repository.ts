@@ -121,10 +121,18 @@ export class ArticleRepository {
         return article;
     }
 
+    async findBySlug(slug: string): Promise<Article> {
+        const article = await this.articleRepository.findOne({
+            where: { slug },
+        });
+        if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
+        return article;
+    }
+
     async findArticlesBySlugforComments(slug: string): Promise<Article> {
         const article = await this.articleRepository.findOne({
             where: {slug},
-            relations:['comments','comments.user','comments.user.profile','comments.user.profile.followers']
+            relations:['comments','comments.user','comments.user.profile.followers']
         }) 
         if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
         return article;

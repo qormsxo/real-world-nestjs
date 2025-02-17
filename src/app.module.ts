@@ -40,7 +40,7 @@ import { CommentModule } from './modules/comment/comment.module';
     AuthModule,
     ArticleModule,
     FollowModule,
-    // CommentModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AllExceptionsFilter,AppService,WinstonLogger],
