@@ -51,8 +51,7 @@ export class UserService {
 
     async signIn(userLoginPayload: UserLoginPayload): Promise<UserResponseDto> {
         const user = await this.userRepository.findOne({
-            where: { email: userLoginPayload.email },
-            relations: ['profile']
+            where: { email: userLoginPayload.email }
         });
 
         if (!user) {
@@ -70,7 +69,6 @@ export class UserService {
     async findById(id: number, token:string): Promise<UserResponseDto> {
         const user = await this.userRepository.findOneOrFail({
             where: { id: id },
-            relations: ['profile'], // 'profile'을 함께 가져오기
         });
         
         return {
@@ -88,8 +86,7 @@ export class UserService {
         if (dto.user.password) dto.user.password = await this.hashPassword(dto.user.password)
 
         const user = await this.userRepository.findOneOrFail({
-            where: { id: id },
-            relations: ['profile'], // 'profile'을 함께 가져오기
+            where: { id: id }
         });        
 
         user.update(dto.user);
