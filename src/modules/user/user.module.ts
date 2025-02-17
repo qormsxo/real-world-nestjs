@@ -6,6 +6,8 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { JwtModule } from '@nestjs/jwt';
 import * as dotenv from 'dotenv';
+import { ProfileRepository } from '../profile/profile.repository';
+import { UserRepository } from './user.repository';
 dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 @Module({
@@ -16,7 +18,7 @@ dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 �
     }),
     TypeOrmModule.forFeature([User, Profile]), // User, Profile 엔티티를 TypeOrm에 등록
   ],
-  providers: [UserService], 
+  providers: [UserService, ProfileRepository,UserRepository], 
   controllers: [UserController],
 })
 export class UserModule {}

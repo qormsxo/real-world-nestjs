@@ -1,5 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, HttpStatus, InternalServerErrorException, Param, Post, Put, Query, Req, Request, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
-
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Request, UseGuards, ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { ArticleService } from './article.service';
 import { ArticleCreateRequestDto } from './dto/req/article.create.dto';
@@ -7,7 +6,6 @@ import { ArticlesDto, ArticleDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { PaginationDto } from '../../shared/dto/pagenation.dto';
 import { UpdateArticleRequestDto } from './dto/req/article.update.dto';
-import { CommentCreateRequestDto } from '../comment/dto/req/comment.create.dto';
 import { JwtOptionalAuthGuard } from '../../guard/jwt-optional-auth.guard';
 
 
@@ -99,45 +97,6 @@ export class ArticleController {
   ) {
     return await this.articleService.unFavoriteArticle(req.user.id, slug)
   }
-
-  // @Post(':slug/comments')
-  // @UseGuards(JwtAuthGuard)
-  // async comment(
-  //   @Req() req,
-  //   @Param('slug') slug: string,
-  //   @Body() reqDto: CommentCreateRequestDto,
-  // ) {
-  //   const { comment } = reqDto
-  //   return {
-  //     comment: await this.articleService.createComment(req.user.id, slug, comment)
-  //   }
-  // }
-
-  // @Get(':slug/comments')
-  // @UseGuards(JwtOptionalAuthGuard)
-  // async getCommentByArticle(
-  //   @Req() req,
-  //   @Param('slug') slug: string,
-  // ) {
-
-  //   // JWT 토큰이 있을 경우 userId 추출, 없으면 null
-  //   const userId = req.user?.id ?? null;
-
-  //   return await this.articleService.findCommentsBySlug(userId, slug)
-  // }
-
-  // @Delete(':slug/comments/:commentId')
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(JwtAuthGuard)
-  // async deleteComment(
-  //   @Req() req,
-  //   @Param('slug') slug: string,
-  //   @Param('commentId') commentId: number,
-  // ) {
-  //   await this.articleService.deleteCommentsById(req.user.id ,commentId,slug);
-  //   return { message: '댓글이 성공적으로 삭제되었습니다.' }; 
-  // }
-
 
   @Delete(':slug')
   @UseGuards(JwtAuthGuard)

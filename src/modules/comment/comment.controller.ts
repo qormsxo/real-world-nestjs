@@ -1,7 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post,  Req,  UseGuards } from '@nestjs/common';
-
 import { JwtAuthGuard } from '../../auth/auth.guard';
-import { PaginationDto } from '../../shared/dto/pagenation.dto';
 import { CommentCreateRequestDto } from '../comment/dto/req/comment.create.dto';
 import { JwtOptionalAuthGuard } from '../../guard/jwt-optional-auth.guard';
 import { CommentService } from './comment.service';

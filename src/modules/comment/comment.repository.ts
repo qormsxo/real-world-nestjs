@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
-import { Tag } from '../tag/tag.entity';  // Tag와 관련된 작업을 할 경우
+import { Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Comment } from './comment.entity';
 import { Article } from '../article/article.entity';

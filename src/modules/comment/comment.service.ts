@@ -1,13 +1,10 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { User } from "../user/user.entity";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";;
 import { CommentCreateDto } from "./dto/req/comment.create.dto";
 import { CommentResponseDto, CommentsDto } from "./dto/res/comment.response.dto";
-import { Comment } from "./comment.entity";
 import { ArticleRepository } from "../article/article.repository";
 import { Transactional } from "typeorm-transactional";
 import { CommentRepository } from "./comment.repository";
+import { UserRepository } from "../user/user.repository";
 
 
 @Injectable()
@@ -15,8 +12,7 @@ export class CommentService {
     constructor(
         private readonly commentRepository: CommentRepository,
 
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
+        private readonly userRepository: UserRepository,
 
         private readonly articleRepository: ArticleRepository,
     ) { }
@@ -25,7 +21,7 @@ export class CommentService {
     async createComment(id: number, slug: string, dto: CommentCreateDto): Promise<CommentResponseDto> {
         const article = await this.articleRepository.findBySlug(slug);
 
-        const commentedUser = await this.getUserById(id);
+        const commentedUser = await this.userRepository.findById(id);
 
         const comment = await this.commentRepository.create(article, dto.body,commentedUser)
         const savedComment = await this.commentRepository.save(comment);
@@ -44,10 +40,6 @@ export class CommentService {
         if (comment.user.id !== id) throw new ForbiddenException('작성자가 아닙니다.');
 
         await this.commentRepository.delete(comment);
-    }
-
-    private async getUserById(id: number): Promise<User> {
-        return await this.userRepository.findOne({ where: { id } }) || (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();
     }
 
 

@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import { BaseUserDto } from '../user.dto';
 import { OmitType } from '@nestjs/mapped-types';
 
-// 
 export class UserCreateDto extends OmitType(BaseUserDto, ['bio', 'image'] as const) {}
 
 export class UserCreateRequestDto {

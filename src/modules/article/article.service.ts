@@ -1,20 +1,17 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Like, Repository } from 'typeorm';
-import { Profile } from '../profile/profile.entity';
 import { Transactional } from 'typeorm-transactional';
 import { Article } from './article.entity';
 import { ArticleCreateRequestBodyDto } from './dto/req/article.create.dto';
-import { Tag } from '../tag/tag.entity';
-import { User } from '../user/user.entity';
 import { ArticleResponseDto, ArticlesDto, ArticleDto } from './dto/res/article.response.dto';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
-import { Follow } from '../follow/follow.entity';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 import { UpdateArticleDto } from './dto/req/article.update.dto';
 import { Favorite } from '../favorite/favorite.entity';
 import { ArticleRepository } from './article.repository';
 import { FollowRepository } from '../follow/follow.repository';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class ArticleService {
@@ -22,7 +19,9 @@ export class ArticleService {
 
         private readonly articleRepository: ArticleRepository,
 
-        private followRepository: FollowRepository,
+        private readonly userRepository: UserRepository,
+
+        private readonly followRepository: FollowRepository,
 
         @InjectRepository(Favorite)
         private readonly favoriteRepository: Repository<Favorite>,
@@ -32,7 +31,7 @@ export class ArticleService {
     async createArticle(dto: ArticleCreateRequestBodyDto, id: number): Promise<ArticleDto> {
         const { title, description, body, tagList } = dto;
 
-        const author = await this.articleRepository.getUserById(id)
+        const author = await this.userRepository.findById(id)
         const tags = await this.articleRepository.addTags(tagList);
 
         //Article 생성
@@ -124,7 +123,7 @@ export class ArticleService {
         await this.articleRepository.save(article);
 
         return {
-            article:ArticleResponseDto.toDto(article, id)
+            article: ArticleResponseDto.toDto(article, id)
         }
     }
 
@@ -171,7 +170,7 @@ export class ArticleService {
         }
 
         return {
-            article:ArticleResponseDto.toDto(article, id)
+            article: ArticleResponseDto.toDto(article, id)
         }
 
     }

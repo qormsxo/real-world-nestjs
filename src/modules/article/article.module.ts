@@ -10,16 +10,17 @@ import { Follow } from '../follow/follow.entity';
 import { Favorite } from '../favorite/favorite.entity';
 import { ArticleRepository } from './article.repository';
 import { FollowRepository } from '../follow/follow.repository';
+import { UserRepository } from '../user/user.repository';
 dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Article, Tag, User,Follow,Favorite]),
-    
+    TypeOrmModule.forFeature([Article, Tag, User, Follow, Favorite]),
+
   ],
-  providers: [ArticleService,ArticleRepository,FollowRepository],
+  providers: [ArticleService, ArticleRepository, FollowRepository, UserRepository],
   controllers: [ArticleController],
-  exports: [ArticleService,ArticleRepository]
+  exports: [ArticleService, ArticleRepository]
 })
 export class ArticleModule { }

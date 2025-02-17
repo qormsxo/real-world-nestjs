@@ -1,12 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Transactional } from 'typeorm-transactional';
-import { Follow } from './follow.entity';
-import { Profile } from '../profile/profile.entity';
-import { User } from '../user/user.entity';
 import { ProfileResponseDto, ProfileWrapperDto } from '../profile/dto/res/profile.response.dto';
 import { FollowRepository } from './follow.repository';
+import { ProfileRepository } from '../profile/profile.repository';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class FollowService {
@@ -14,31 +11,17 @@ export class FollowService {
 
         private followRepository: FollowRepository,
 
-        @InjectRepository(Profile)
-        private readonly profileRepository: Repository<Profile>,
+        private readonly profileRepository: ProfileRepository,
 
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
+        private readonly userRepository: UserRepository,
     ) { }
-
-    private async getProfileWithFollowers(username: string): Promise<Profile> {
-        return await this.profileRepository.findOne({
-            where: { username },
-            relations: ['followers'],
-        }) || (() => { throw new NotFoundException('프로필을 찾을 수 없습니다.') })();
-    }
-
-    private async getUserById(id: number): Promise<User> {
-        return await this.userRepository.findOne({ where: { id } })
-            || (() => { throw new NotFoundException('존재하지 않는 유저') })();
-    }
 
     @Transactional()
     async follow(username: string, id: number): Promise<ProfileWrapperDto> {
-        const profile = await this.getProfileWithFollowers(username);
-        const follower = await this.getUserById(id);
+        const profile = await this.profileRepository.getProfileWithFollowers(username);
+        const follower = await this.userRepository.findById(id);
 
-        if (await this.followRepository.isFollow(follower,profile)) {
+        if (await this.followRepository.isFollow(follower, profile)) {
             throw new ConflictException('이미 팔로우 한 유저입니다.');
         }
 
@@ -47,7 +30,7 @@ export class FollowService {
             follower,
             profile,
         );
-        
+
         await this.followRepository.save(follow)
 
         // 프로필에 팔로우를 수동으로 추가하고 갱신
@@ -62,11 +45,11 @@ export class FollowService {
 
     @Transactional()
     async unfollow(username: string, id: number): Promise<ProfileWrapperDto> {
-        const profile = await this.getProfileWithFollowers(username);
-        const follower = await this.getUserById(id);
+        const profile = await this.profileRepository.getProfileWithFollowers(username);
+        const follower = await this.userRepository.findById(id);
 
         // 팔로우 관계 확인
-        const follow = await this.followRepository.findByUserAndProfile(follower,profile)
+        const follow = await this.followRepository.findByUserAndProfile(follower, profile)
 
 
         // 언팔로우 follow 테이블에서 삭제
@@ -82,11 +65,11 @@ export class FollowService {
     }
 
     async getProfile(username: string, id: number): Promise<ProfileWrapperDto> {
-        const profile = await this.getProfileWithFollowers(username);
+        const profile = await this.profileRepository.getProfileWithFollowers(username);
 
         return {
             profile: ProfileResponseDto.toDto(profile, id),
         };
     }
-    
+
 }

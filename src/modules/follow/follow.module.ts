@@ -7,14 +7,16 @@ import { FollowService } from './follow.service';
 import { FollowController } from './follow.controller';
 import { User } from '../user/user.entity';
 import { FollowRepository } from './follow.repository';
+import { ProfileRepository } from '../profile/profile.repository';
+import { UserRepository } from '../user/user.repository';
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Follow,Profile,User]),
+    TypeOrmModule.forFeature([Follow, Profile, User]),
   ],
-  providers: [FollowService,FollowRepository], 
+  providers: [FollowService, FollowRepository, ProfileRepository, UserRepository],
   controllers: [FollowController],
-  exports:[FollowRepository]
+  exports: [FollowRepository]
 })
-export class FollowModule {}
+export class FollowModule { }

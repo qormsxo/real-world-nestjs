@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { Tag } from '../tag/tag.entity';  // Tag와 관련된 작업을 할 경우
-import { User } from '../user/user.entity';
 import { ArticleQueryDto } from './dto/req/article.query.dto';
 import { PaginationDto } from 'src/shared/dto/pagenation.dto';
 
@@ -16,16 +15,7 @@ export class ArticleRepository {
         @InjectRepository(Tag)
         private readonly tagRepository: Repository<Tag>,
 
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-    ) {}
-
-    async getUserById(id: number): Promise<User> {
-
-        return await this.userRepository.findOne({
-            where: { id: id },
-        }) || (() => { throw new NotFoundException(`유저를 찾을 수 없습니다.`); })();;
-    }
+    ) { }
 
     async addTags(tagList: string[]): Promise<Tag[]> {
         const tags = await Promise.all(
@@ -41,11 +31,11 @@ export class ArticleRepository {
         return tags;
     }
 
-    async save(article :Article) {
+    async save(article: Article) {
         return await this.articleRepository.save(article)
     }
 
-    async getAllArticles(query: ArticleQueryDto): Promise<Article[]>{
+    async getAllArticles(query: ArticleQueryDto): Promise<Article[]> {
         const { tag, author, favorited, limit, offset } = query;
         let queryBuilder = this.articleRepository.createQueryBuilder('article')
             .leftJoinAndSelect('article.tags', 'tags')
@@ -88,8 +78,8 @@ export class ArticleRepository {
         return await queryBuilder.getMany();
     }
 
-    async feed(followingUserIds:number[], query: PaginationDto){
-        
+    async feed(followingUserIds: number[], query: PaginationDto) {
+
         const { limit, offset } = query;
 
         return await this.articleRepository.find({
@@ -99,7 +89,7 @@ export class ArticleRepository {
             skip: offset,
             take: limit
         });
-        
+
     }
 
     async findArticleBySlug(slug: string): Promise<Article> {
@@ -121,9 +111,9 @@ export class ArticleRepository {
 
     async findArticlesBySlugforComments(slug: string): Promise<Article> {
         const article = await this.articleRepository.findOne({
-            where: {slug},
-            relations:['comments','comments.user','comments.user.profile.followers']
-        }) 
+            where: { slug },
+            relations: ['comments', 'comments.user', 'comments.user.profile.followers']
+        })
         if (!article) throw new NotFoundException('게시물을 찾을 수 없습니다.');
         return article;
     }

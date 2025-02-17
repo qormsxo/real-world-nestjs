@@ -1,25 +1,21 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UserCreateDto } from './dto/req/user.create.dto';
 import * as bcrypt from 'bcrypt';
-import { Profile } from '../profile/profile.entity';
 import { JwtService } from '@nestjs/jwt';
 import { UserResponseDto, UserWithTokenDto } from './dto/res/user.response.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateUserDto } from './dto/req/user.update.dto';
-import { BaseUserDto } from './dto/user.dto';
-import { UserLoginDto, UserLoginPayload } from './dto/req/user.login.dto';
+import { UserLoginPayload } from './dto/req/user.login.dto';
+import { ProfileRepository } from '../profile/profile.repository';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
+        private readonly userRepository: UserRepository,
 
-        @InjectRepository(Profile)
-        private profileRepository: Repository<Profile>,
+        private readonly profileRepository: ProfileRepository,
 
         private jwtService: JwtService,
     ) { }
@@ -29,17 +25,14 @@ export class UserService {
 
         const hashedPassword = await this.hashPassword(userDto.password)
 
-        const user = this.userRepository.create({
-            email: userDto.email,
-            password: hashedPassword
-        })
+        const user = await this.userRepository.create(userDto.email, hashedPassword)
 
         const savedUser = await this.userRepository.save(user)
 
-        const profile = this.profileRepository.create({
-            username: userDto.username,
-            user: savedUser
-        });
+        const profile = await this.profileRepository.create(
+            userDto.username,
+            savedUser
+        )
 
         await this.profileRepository.save(profile);
 
@@ -50,9 +43,7 @@ export class UserService {
 
 
     async signIn(userLoginPayload: UserLoginPayload): Promise<UserResponseDto> {
-        const user = await this.userRepository.findOne({
-            where: { email: userLoginPayload.email }
-        });
+        const user = await this.userRepository.findByEmail(userLoginPayload.email);
 
         if (!user) {
             throw new UnauthorizedException('이메일이 올바르지 않습니다.');
@@ -67,9 +58,7 @@ export class UserService {
         }
     }
     async findById(id: number, token:string): Promise<UserResponseDto> {
-        const user = await this.userRepository.findOneOrFail({
-            where: { id: id },
-        });
+        const user = await this.userRepository.findById(id)
         
         return {
             user: UserWithTokenDto.builder()
@@ -85,9 +74,7 @@ export class UserService {
         
         if (dto.user.password) dto.user.password = await this.hashPassword(dto.user.password)
 
-        const user = await this.userRepository.findOneOrFail({
-            where: { id: id }
-        });        
+        const user = await this.userRepository.findById(id)
 
         user.update(dto.user);
         // 엔티티를 저장 (업데이트)
