@@ -33,7 +33,7 @@ export class UserService {
             userDto.username,
             savedUser
         )
-
+        
         await this.profileRepository.save(profile);
 
         return {
