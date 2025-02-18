@@ -22,7 +22,6 @@ describe('userService', () => {
         module = await Test.createTestingModule({
             imports: [
                 TestModule,
-                TypeOrmModule.forFeature([User,UserRepository]), 
             ],
         }).compile();
 
