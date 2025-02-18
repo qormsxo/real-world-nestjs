@@ -12,6 +12,7 @@ import { Favorite } from '../favorite/favorite.entity';
 import { ArticleRepository } from './article.repository';
 import { FollowRepository } from '../follow/follow.repository';
 import { UserRepository } from '../user/user.repository';
+import { FavoriteRepository } from '../favorite/favorite.repository';
 
 @Injectable()
 export class ArticleService {
@@ -23,8 +24,7 @@ export class ArticleService {
 
         private readonly followRepository: FollowRepository,
 
-        @InjectRepository(Favorite)
-        private readonly favoriteRepository: Repository<Favorite>,
+        private readonly favoriteRepository: FavoriteRepository,
     ) { }
 
     @Transactional()
@@ -133,13 +133,11 @@ export class ArticleService {
         const article = await this.findArticleBySlug(slug);
 
         // 사용자가 이미 좋아요를 눌렀는지 확인
-        const existingFavorite = await this.favoriteRepository.findOne({
-            where: { user: { id }, article: { id: article.id } },
-        });
+        const existingFavorite = await this.favoriteRepository.hasUserFavoritedArticle(id,article.id)
 
         if (!existingFavorite) {
             // 좋아요 추가
-            const favorite = this.favoriteRepository.create({ user: { id }, article });
+            const favorite = await this.favoriteRepository.create(id,article);
             await this.favoriteRepository.save(favorite);
 
             article.favorites.push(favorite)
@@ -156,15 +154,13 @@ export class ArticleService {
     @Transactional()
     async unFavoriteArticle(id: number, slug: string): Promise<ArticleDto> {
         const article = await this.findArticleBySlug(slug);
-
         // 사용자가 이미 좋아요를 눌렀는지 확인
-        const existingFavorite = await this.favoriteRepository.findOne({
-            where: { user: { id }, article: { id: article.id } },
-        });
+        const existingFavorite = await this.favoriteRepository.hasUserFavoritedArticle(id,article.id)
+
 
         if (existingFavorite) {
             // 좋아요 제거
-            await this.favoriteRepository.remove(existingFavorite);
+            await this.favoriteRepository.delete(existingFavorite);
             article.favorites = article.favorites.filter(fav => fav.user.id !== id);
             await this.articleRepository.save(article);
         }
