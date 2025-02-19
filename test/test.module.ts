@@ -9,6 +9,7 @@ import { Follow } from "../src/modules/follow/follow.entity";
 import { Favorite } from "../src/modules/favorite/favorite.entity";
 import * as dotenv from 'dotenv';
 import { UserRepository } from "../src/modules/user/user.repository";
+import { ProfileRepository } from "../src/modules/profile/profile.repository";
 dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 추가
 
 @Module({
@@ -28,6 +29,6 @@ dotenv.config();  // .env 파일을 로드하여 process.env에 환경 변수 �
         TypeOrmModule.forFeature([Article, User, Tag, Profile, Follow, Favorite, Comment]),
 
     ],
-    providers: [UserRepository]
+    providers: [UserRepository,ProfileRepository]
 })
 export class TestModule { }
