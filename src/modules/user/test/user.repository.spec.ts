@@ -6,7 +6,7 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { UserRepository } from "../user.repository";
 
-describe('userService', () => {
+describe('userRepository', () => {
     let module: TestingModule;
     let userRepository: Repository<User>;
     let repository: UserRepository;

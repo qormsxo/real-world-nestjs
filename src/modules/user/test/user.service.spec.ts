@@ -76,11 +76,11 @@ describe('UserService', () => {
       profile.username = userDto.username;
       profile.user = testUser;
 
-      jest.spyOn(userRepository, 'create').mockResolvedValue(testUser); // 메서드 모킹
+      jest.spyOn(userRepository, 'create').mockResolvedValue(testUser); 
 
       testUser.id = 1
 
-      jest.spyOn(userRepository, 'save').mockResolvedValue(testUser); // 메서드 모킹
+      jest.spyOn(userRepository, 'save').mockResolvedValue(testUser);
       jest.spyOn(profileRepository, 'create').mockResolvedValue(profile);
 
       const { user } = await userService.signUp(userDto);  // 가입 서비스 호출
