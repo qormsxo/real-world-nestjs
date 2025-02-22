@@ -43,19 +43,18 @@ describe('UserService', () => {
         },
         {
           provide: JwtService,
-          useValue: { sign: jest.fn().mockReturnValue('fake-jwt-token') },  // JWT 서비스 mock (토큰 생성)
+          useValue: { sign: jest.fn().mockReturnValue('fake-jwt-token') },
         },
       ],
     }).compile();
 
     userService = module.get<UserService>(UserService);
-    userRepository = module.get<UserRepository>(UserRepository);  // UserRepository 주입
+    userRepository = module.get<UserRepository>(UserRepository);
     profileRepository = module.get<ProfileRepository>(ProfileRepository);
 
   });
 
   it('should be defined', () => {
-    // UserService가 잘 정의되어 있는지 확인하는 기본 테스트
     expect(userService).toBeDefined();
   });
 

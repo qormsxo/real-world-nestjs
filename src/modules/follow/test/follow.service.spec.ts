@@ -80,7 +80,6 @@ describe('FollowService', () => {
     });
 
     it('should be defined', () => {
-        // UserService가 잘 정의되어 있는지 확인하는 기본 테스트
         expect(followService).toBeDefined();
     });
 

@@ -40,7 +40,6 @@ export class Article {
   @UpdateDateColumn()
   updatedAt: Date; // 🔹 수정 시간 자동 관리
 
-
   constructor(
     title: string,
     slug: string,
