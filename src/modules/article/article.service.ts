@@ -175,5 +175,14 @@ export class ArticleService {
         const article = await this.articleRepository.findArticlesBySlugforComments(slug)
         return article;
     }
+    async deleteArticleBySlug(id:number, slug: string){
+        const article = await this.articleRepository.findBySlug(slug)
+
+        if(id !== article.author.id){
+            throw new ForbiddenException('작성자만 삭제할 수 있습니다.');
+        }
+
+        await this.articleRepository.delete(article);
+    }
 
 }

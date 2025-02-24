@@ -22,18 +22,18 @@ export class Article {
   body: string;
 
   @ManyToMany(() => Tag, (tag) => tag.articles, { cascade: true })
-  @JoinTable({ name: 'article_tags' }) 
+  @JoinTable({ name: 'article_tags' })
   tags: Tag[];
 
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   author: User;
 
-  @OneToMany(() => Comment, (comment) => comment.article)
+  @OneToMany(() => Comment, (comment) => comment.article, { cascade: true })
   comments: Comment[];
 
-  @OneToMany(() => Favorite, (favorite) => favorite.article,{ eager: true })
+  @OneToMany(() => Favorite, (favorite) => favorite.article, { eager: true, cascade: true })
   favorites: Favorite[];
-  
+
   @CreateDateColumn()
   createdAt: Date; // 🔹 생성 시간 자동 관리
 
@@ -57,7 +57,7 @@ export class Article {
     this.author = author;
   }
 
-   // 빌더 패턴을 위한 메서드
+  // 빌더 패턴을 위한 메서드
   static builder() {
     return new ArticleBuilder();
   }
@@ -104,6 +104,6 @@ export class ArticleBuilder {
 
   // 최종적으로 Article 객체 반환
   build(): Article {
-    return new Article(this.title,this.slug,this.description,this.body,this.tags,this.author)
+    return new Article(this.title, this.slug, this.description, this.body, this.tags, this.author)
   }
 }

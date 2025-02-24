@@ -10,7 +10,7 @@ export class Comment {
   @Column()
   body: string;
 
-  @ManyToOne(() => Article, (article) => article.comments)
+  @ManyToOne(() => Article, (article) => article.comments , { onDelete: 'CASCADE' })
   article: Article;
 
   @ManyToOne(() => User, (user) => user.comments)

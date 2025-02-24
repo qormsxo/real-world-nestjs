@@ -118,4 +118,8 @@ export class ArticleRepository {
         return article;
     }
 
+    async delete(article:Article) {
+        await this.articleRepository.remove(article);
+    }
+
 }

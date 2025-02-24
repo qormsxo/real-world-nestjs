@@ -103,11 +103,8 @@ export class ArticleController {
   async deleteArticle(
     @Req() req,
     @Param('slug') slug: string,
-    @Param('commentId') commentId: number,
   ) {
-    return {
-    
-    }
+     await this.articleService.deleteArticleBySlug(req.user.id, slug);
   }
 
   
