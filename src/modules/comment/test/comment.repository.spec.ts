@@ -92,9 +92,6 @@ describe('CommentRepository', () => {
 
     it('should find a comment by id and articleId', async () => {
         const foundComment = await repository.findArticlesComment(comment.id, article.id);
-
-        console.log(foundComment);
-        
         
         expect(foundComment).toBeDefined();
         expect(foundComment?.id).toBe(comment.id);
