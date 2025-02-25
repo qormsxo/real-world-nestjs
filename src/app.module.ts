@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,6 +10,7 @@ import { AllExceptionsFilter } from './middleware/flters/all-exception.filter';
 import { ArticleModule } from './modules/article/article.module';
 import { FollowModule } from './modules/follow/follow.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { TagModule } from './modules/tag/tag.module';
 
 
 
@@ -41,9 +40,10 @@ import { CommentModule } from './modules/comment/comment.module';
     ArticleModule,
     FollowModule,
     CommentModule,
+    TagModule
   ],
-  controllers: [AppController],
-  providers: [AllExceptionsFilter,AppService,WinstonLogger],
+  controllers: [],
+  providers: [AllExceptionsFilter,WinstonLogger],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {
