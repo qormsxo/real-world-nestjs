@@ -71,11 +71,11 @@ describe('CommentRepository', () => {
         await module.close();
     });
 
-    it('should be defined', () => {
+    it('CommentRepository가 정의되어 있어야 함', () => {
         expect(repository).toBeDefined();
     });
 
-    it('should create and save a comment', async () => {
+    it('댓글을 생성하고 저장할 수 있어야 함', async () => {
         const body = 'This is a test comment';
 
         // 댓글 생성
@@ -90,18 +90,18 @@ describe('CommentRepository', () => {
         expect(comment.id).toBeDefined();
     });
 
-    it('should find a comment by id and articleId', async () => {
+    it('id와 articleId를 이용해 댓글을 찾을 수 있어야 함', async () => {
         const foundComment = await repository.findArticlesComment(comment.id, article.id);
-        
+
         expect(foundComment).toBeDefined();
         expect(foundComment?.id).toBe(comment.id);
         expect(foundComment?.user.id).toBe(user.id);
     });
 
-    it('should delete a comment', async () => {
+    it('댓글을 삭제할 수 있어야 함', async () => {
         await repository.delete(comment);
 
-        // 삭제 후 찾을 수 없는지 확인
+        // 삭제 후 댓글이 존재하지 않는지 확인
         const deletedComment = await repository.findArticlesComment(comment.id, article.id);
         expect(deletedComment).toBeNull();
     });
